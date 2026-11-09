@@ -1,0 +1,205 @@
+Archive member included to satisfy reference by file (symbol)
+
+/opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+                              /tmp/cc7DwSUF.o (__udivsi3)
+
+Merging object attributes
+
+
+Discarded input sections
+
+ .text          0x00000000        0x0 /tmp/ccaJvJCh.o
+ .data          0x00000000        0x0 /tmp/ccaJvJCh.o
+ .bss           0x00000000        0x0 /tmp/ccaJvJCh.o
+ .text.bl_jump  0x00000000        0x4 /tmp/ccaJvJCh.o
+ .text          0x00000000        0x0 /tmp/cc3KlXJv.o
+ .data          0x00000000        0x0 /tmp/cc3KlXJv.o
+ .bss           0x00000000        0x0 /tmp/cc3KlXJv.o
+ .text          0x00000000        0x0 /tmp/cc7DwSUF.o
+ .data          0x00000000        0x0 /tmp/cc7DwSUF.o
+ .bss           0x00000000        0x0 /tmp/cc7DwSUF.o
+ .text.uart0_send.part.0
+                0x00000000       0x58 /tmp/cc7DwSUF.o
+ .text.print_chr
+                0x00000000       0x44 /tmp/cc7DwSUF.o
+ .text.print_str
+                0x00000000       0x34 /tmp/cc7DwSUF.o
+ .text.print_dec
+                0x00000000       0xac /tmp/cc7DwSUF.o
+ .rodata.print_hex.str1.4
+                0x00000000       0x11 /tmp/cc7DwSUF.o
+ .text.print_hex
+                0x00000000       0x74 /tmp/cc7DwSUF.o
+ .text.print_flush_buffer
+                0x00000000        0x4 /tmp/cc7DwSUF.o
+ .debug_info    0x00000000      0x382 /tmp/cc7DwSUF.o
+ .debug_abbrev  0x00000000      0x1e7 /tmp/cc7DwSUF.o
+ .debug_loclists
+                0x00000000      0x299 /tmp/cc7DwSUF.o
+ .debug_aranges
+                0x00000000       0x48 /tmp/cc7DwSUF.o
+ .debug_rnglists
+                0x00000000       0x41 /tmp/cc7DwSUF.o
+ .debug_line    0x00000000      0x48b /tmp/cc7DwSUF.o
+ .debug_str     0x00000000      0x13a /tmp/cc7DwSUF.o
+ .debug_line_str
+                0x00000000       0x5b /tmp/cc7DwSUF.o
+ .comment       0x00000000       0x1a /tmp/cc7DwSUF.o
+ .note.GNU-stack
+                0x00000000        0x0 /tmp/cc7DwSUF.o
+ .debug_frame   0x00000000       0x98 /tmp/cc7DwSUF.o
+ .riscv.attributes
+                0x00000000       0x1c /tmp/cc7DwSUF.o
+ .text          0x00000000        0x0 /tmp/cc8Wvk1U.o
+ .data          0x00000000        0x0 /tmp/cc8Wvk1U.o
+ .bss           0x00000000        0x0 /tmp/cc8Wvk1U.o
+ .text.str_crc8
+                0x00000000       0x3c /tmp/cc8Wvk1U.o
+ .rodata        0x00000000      0x100 /tmp/cc8Wvk1U.o
+ .debug_info    0x00000000      0x118 /tmp/cc8Wvk1U.o
+ .debug_abbrev  0x00000000       0xc1 /tmp/cc8Wvk1U.o
+ .debug_loclists
+                0x00000000       0xa3 /tmp/cc8Wvk1U.o
+ .debug_aranges
+                0x00000000       0x20 /tmp/cc8Wvk1U.o
+ .debug_rnglists
+                0x00000000       0x1f /tmp/cc8Wvk1U.o
+ .debug_line    0x00000000       0xf0 /tmp/cc8Wvk1U.o
+ .debug_str     0x00000000      0x15b /tmp/cc8Wvk1U.o
+ .debug_line_str
+                0x00000000       0xad /tmp/cc8Wvk1U.o
+ .comment       0x00000000       0x1a /tmp/cc8Wvk1U.o
+ .note.GNU-stack
+                0x00000000        0x0 /tmp/cc8Wvk1U.o
+ .debug_frame   0x00000000       0x20 /tmp/cc8Wvk1U.o
+ .riscv.attributes
+                0x00000000       0x1c /tmp/cc8Wvk1U.o
+ .text          0x00000000       0xb4 /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .data          0x00000000        0x0 /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .bss           0x00000000        0x0 /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_line    0x00000000      0x153 /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_line_str
+                0x00000000       0xb7 /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_info    0x00000000       0x5f /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_abbrev  0x00000000       0x28 /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_aranges
+                0x00000000       0x20 /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_str     0x00000000       0xfc /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+ .riscv.attributes
+                0x00000000       0x1a /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a(div.o)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+BL_ROM           0x00000000         0x00001000         xr
+APP_ROM          0x00001000         0x0001f000         xr
+RAM              0x00020000         0x00020000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD /tmp/ccaJvJCh.o
+LOAD /tmp/cc3KlXJv.o
+LOAD /tmp/cc7DwSUF.o
+LOAD /tmp/cc8Wvk1U.o
+LOAD /opt/riscv/lib/gcc/riscv64-unknown-elf/16.1.0/rv32i/ilp32/libgcc.a
+
+.text           0x00000000       0x48
+ *(.vectors)
+ .vectors       0x00000000       0x14 /tmp/ccaJvJCh.o
+                0x00000000                _bl_vectors
+ *(.text .text.*)
+ .text.bl_reset_handler
+                0x00000014       0x10 /tmp/ccaJvJCh.o
+                0x00000014                bl_reset_handler
+ .text.bl_halt  0x00000024       0x18 /tmp/ccaJvJCh.o
+                0x00000024                bl_unexpected
+                0x00000034                bl_halt
+ .text.bl_main  0x0000003c        0xc /tmp/cc3KlXJv.o
+                0x0000003c                bl_main
+ *(.rodata .rodata.* .srodata .srodata.*)
+                0x00000048                        . = ALIGN (0x4)
+
+.rela.dyn       0x00000048        0x0
+ .rela.text.bl_reset_handler
+                0x00000048        0x0 /tmp/ccaJvJCh.o
+
+.data           0x00020000        0x0
+                0x00020000                        _bl_sdata = .
+ *(.data .data.* .sdata .sdata.*)
+                0x00020000                        _bl_edata = .
+
+.bss            0x00020000        0x0
+                0x00020000                        _bl_sbss = .
+ *(.bss .bss.* .sbss .sbss.* COMMON)
+                0x00020000                        _bl_ebss = .
+
+/DISCARD/
+ *(.eh_frame .eh_frame_hdr)
+                0x00000001                        ASSERT ((_bl_edata == _bl_sdata), bl.ld: el BL no puede usar variables globales inicializadas (.data/.sdata))
+                0x00000001                        ASSERT ((_bl_ebss == _bl_sbss), bl.ld: el BL no puede usar variables globales (.bss/.sbss/COMMON))
+                0x00040000                        _bl_stack_top = (ORIGIN (RAM) + LENGTH (RAM))
+                0x00000001                        ASSERT (((_bl_stack_top % 0x10) == 0x0), bl.ld: _bl_stack_top tiene que estar alineado a 16)
+                0x00001000                        __fw_slot_start = ORIGIN (APP_ROM)
+                0x0001f000                        __fw_slot_size = LENGTH (APP_ROM)
+                0x00000001                        ASSERT ((_bl_vectors == ORIGIN (BL_ROM)), bl.ld: la vector table del BL (.vectors) no quedo en ORIGIN(BL_ROM) = 0x0)
+OUTPUT(build/bl.elf elf32-littleriscv)
+
+.riscv.attributes
+                0x00000000       0x1c
+ .riscv.attributes
+                0x00000000       0x1a /tmp/ccaJvJCh.o
+ .riscv.attributes
+                0x0000001a       0x1c /tmp/cc3KlXJv.o
+
+.comment        0x00000000       0x19
+ .comment       0x00000000       0x19 /tmp/cc3KlXJv.o
+                                 0x1a (size before relaxing)
+
+.note.GNU-stack
+                0x00000000        0x0
+ .note.GNU-stack
+                0x00000000        0x0 /tmp/cc3KlXJv.o
+
+.debug_line     0x00000000      0x14d
+ .debug_line    0x00000000       0xb8 /tmp/ccaJvJCh.o
+ .debug_line    0x000000b8       0x95 /tmp/cc3KlXJv.o
+
+.debug_line_str
+                0x00000000       0xbb
+ .debug_line_str
+                0x00000000       0xbb /tmp/ccaJvJCh.o
+                                 0x4a (size before relaxing)
+ .debug_line_str
+                0x000000bb        0x0 /tmp/cc3KlXJv.o
+                                 0xba (size before relaxing)
+
+.debug_info     0x00000000      0x23c
+ .debug_info    0x00000000       0x5c /tmp/ccaJvJCh.o
+ .debug_info    0x0000005c      0x1e0 /tmp/cc3KlXJv.o
+
+.debug_abbrev   0x00000000      0x176
+ .debug_abbrev  0x00000000       0x26 /tmp/ccaJvJCh.o
+ .debug_abbrev  0x00000026      0x150 /tmp/cc3KlXJv.o
+
+.debug_aranges  0x00000000       0x58
+ .debug_aranges
+                0x00000000       0x38 /tmp/ccaJvJCh.o
+ .debug_aranges
+                0x00000038       0x20 /tmp/cc3KlXJv.o
+
+.debug_str      0x00000000      0x25b
+ .debug_str     0x00000000      0x25b /tmp/ccaJvJCh.o
+                                 0x91 (size before relaxing)
+ .debug_str     0x0000025b        0x0 /tmp/cc3KlXJv.o
+                                0x219 (size before relaxing)
+
+.debug_rnglists
+                0x00000000       0x44
+ .debug_rnglists
+                0x00000000       0x25 /tmp/ccaJvJCh.o
+ .debug_rnglists
+                0x00000025       0x1f /tmp/cc3KlXJv.o
+
+.debug_frame    0x00000000       0x28
+ .debug_frame   0x00000000       0x28 /tmp/cc3KlXJv.o

@@ -21,32 +21,42 @@
     .globl  _bl_vectors
     .type   _bl_vectors, @function
 _bl_vectors:
-    /* TODO (hito 2): la vector table.
-     *   - En 0x00 (PROGADDR_RESET): un salto a bl_reset_handler.
-     *   - En 0x10 (PROGADDR_IRQ):   un salto a bl_unexpected.
-     *   - 0x04, 0x08 y 0x0C no son vectores en PicoRV32: ¿qué conviene poner?
-     *   Pregunta: ¿por qué acá la vector table son INSTRUCCIONES y en Cortex-M
-     *   son DIRECCIONES? */
+    /* picorv32 no lee una tabla de direcciones: al salir de reset pone el PC en
+     * PROGADDR_RESET y EJECUTA lo que encuentra ahi (lo mismo con una IRQ en
+     * PROGADDR_IRQ). Por eso cada "vector" es una instruccion de salto de 4 bytes
+     * (con norvc, `j` es siempre un jal de 32 bits y los offsets quedan fijos). */
+    j       bl_reset_handler        /* 0x00  PROGADDR_RESET                       */
+    /* 0x04..0x0C no son vectores: si el PC cae aca es un error (por ejemplo, un
+     * salto a una direccion invalida), asi que tambien se va a FAIL + trap en
+     * vez de "caer" en la siguiente instruccion. */
+    j       bl_unexpected           /* 0x04                                       */
+    j       bl_unexpected           /* 0x08                                       */
+    j       bl_unexpected           /* 0x0C                                       */
+    j       bl_unexpected           /* 0x10  PROGADDR_IRQ (ENABLE_IRQ = 0)         */
 
     .size   _bl_vectors, . - _bl_vectors
     .option pop
 
 /* ------------------------------------------------------------------------ */
-/*  Reset: init mínimo del BL                                               */
+/*  Reset: init minimo del BL                                               */
 /* ------------------------------------------------------------------------ */
     .section .text.bl_reset_handler, "ax"
     .globl  bl_reset_handler
     .type   bl_reset_handler, @function
 bl_reset_handler:
-    /* TODO (hito 2):
-     *   1) Cargar sp con _bl_stack_top (lo define bl.ld). ¿Por qué lo tiene que
-     *      hacer el software?
-     *   2) .data/.bss del BL: si el BL no usa variables globales, no hay nada
-     *      que copiar ni poner en cero (¿cómo garantizan que no las use?).
-     *   3) Llamar a bl_main(), que no vuelve.
-     */
+    /* 1) sp = _bl_stack_top (bl.ld). En picorv32 STACKADDR = 0xFFFF_FFFF: el
+     *    core NO inicializa sp al salir de reset, asi que lo tiene que
+     *    cargar el software antes de llamar a cualquier funcion en C. */
+    la      sp, _bl_stack_top
 
-    j       bl_unexpected           /* si bl_main volviera (o mientras no esté hecho): FAIL */
+    /* 2) .data/.bss del BL: no hay nada que copiar ni poner en cero porque el
+     *    BL no usa variables globales; bl.ld hace FALLAR el link si aparece
+     *    alguna (.data/.sdata/.bss/.sbss/COMMON con tamanio distinto de 0). */
+
+    /* 3) bl_main() no vuelve: salta al FW o termina en bl_halt(). */
+    call    bl_main
+
+    j       bl_unexpected           /* si bl_main volviera: FAIL */
     .size   bl_reset_handler, . - bl_reset_handler
 
 /* ------------------------------------------------------------------------ */

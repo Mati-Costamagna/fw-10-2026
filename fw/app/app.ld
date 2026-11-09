@@ -1,39 +1,70 @@
 /*
  * app.ld -- TP4 (Bloque 4): linker script del FW del TP anterior cuando corre
- * detras del bootloader. Partan de ../linker.ld y de la diapo 4.
+ * detras del bootloader. Parte de ../linker.ld y de la diapo 4. Hito 3.
  *
- * COMPLETAR los TODO (hito 3).
+ *   APP_ROM 0x0000_1000  | header + vector table | .text | .rodata | valores iniciales de .data |
+ *   RAM     0x0002_0000  | .data (VMA) | .bss | ...libre... | stack (crece hacia abajo) | 0x0004_0000
  */
 ENTRY(Reset_Handler)
 
 INCLUDE memory_map.ld
 
+/* Lugar minimo que tiene que quedar libre para el stack entre _ebss y _stack_top */
+__min_stack_size = 0x1000;
+
 SECTIONS
 {
   .text : {
-    /* TODO: __fw_start y el header + vector table del FW (seccion .fw_header
-     *       de app_startup.S) PRIMERO, al inicio de APP_ROM. ¿Por que KEEP? */
+    /* El header + vector table del FW PRIMERO, en ORIGIN(APP_ROM): es donde el BL
+     * lo busca (__fw_slot_start). KEEP porque nadie lo referencia desde el codigo
+     * y --gc-sections lo descartaria. */
+    __fw_start = .;
+    KEEP(*(.fw_header))
+    /* Reset_Handler justo despues del header (0x1018), sin depender del orden
+     * en que se pasan los archivos al linker. */
+    *(.text.Reset_Handler)
     *(.text .text.*)
     *(.rodata .rodata.*)
-    /* TODO: ¿que otra seccion de solo lectura genera GCC en RISC-V? (hito 1) */
+    /* RISC-V: GCC pone las constantes chicas en .srodata (small read-only data) */
+    *(.srodata .srodata.*)
     . = ALIGN(4);
   } > APP_ROM
 
-  /* TODO: .data
-   *   - VMA en RAM, LMA dentro de APP_ROM (AT>)
-   *   - simbolos _sdata / _edata (VMA) y _sidata (LMA, ver LOADADDR)
-   *   - incluir tambien .sdata (globales chicas)                          */
+  /* .data: corre en RAM (VMA) pero sus valores iniciales viajan en la imagen,
+   * a continuacion de .text (LMA, AT> APP_ROM). Reset_Handler los copia. */
+  .data : {
+    . = ALIGN(4);
+    _sdata = .;
+    *(.data .data.*)
+    /* globales chicas (<= 8 bytes, -msmall-data-limit) */
+    *(.sdata .sdata.*)
+    . = ALIGN(4);
+    _edata = .;
+  } > RAM AT> APP_ROM
+  _sidata = LOADADDR(.data);
 
-  /* TODO: .bss
-   *   - en RAM, sin ocupar lugar en la imagen (NOLOAD)
-   *   - simbolos _sbss / _ebss
-   *   - incluir tambien .sbss y COMMON                                    */
+  /* .bss: solo ocupa RAM, no la imagen (NOLOAD). Reset_Handler la pone en 0. */
+  .bss (NOLOAD) : {
+    . = ALIGN(4);
+    _sbss = .;
+    *(.sbss .sbss.*)
+    *(.bss .bss.*)
+    *(COMMON)
+    . = ALIGN(4);
+    _ebss = .;
+  } > RAM
 
   /DISCARD/ : { *(.eh_frame .eh_frame_hdr) }
 }
 
-/* TODO: simbolos que usa el header (fw_image.h) y el arranque:
- *   __fw_end   = fin de la imagen cargable (¿donde termina la copia de .data?)
- *   __fw_size  = __fw_end - __fw_start
- *   _stack_top = tope de la RAM
- * TODO: ASSERT que verifique que .data + .bss dejan lugar para el stack. */
+/* Simbolos que usan el header (fw_image.h) y el arranque */
+__fw_end   = _sidata + (_edata - _sdata);    /* fin de la imagen: termina la copia de .data */
+__fw_size  = __fw_end - __fw_start;          /* image_size: lo que el BL valida y firma mkimage.py */
+_stack_top = ORIGIN(RAM) + LENGTH(RAM);      /* initial_sp: tope de la RAM */
+
+ASSERT(__fw_start == ORIGIN(APP_ROM),
+       "app.ld: el header del FW (.fw_header) no quedo al inicio de APP_ROM")
+ASSERT(_stack_top % 16 == 0,
+       "app.ld: _stack_top tiene que estar alineado a 16 (ABI RISC-V)")
+ASSERT(_ebss + __min_stack_size <= _stack_top,
+       "app.ld: .data + .bss no dejan lugar para el stack en la RAM")

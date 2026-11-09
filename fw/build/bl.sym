@@ -1,0 +1,12 @@
+00000000 T _bl_vectors
+00000014 T bl_reset_handler
+00000024 T bl_unexpected
+00000034 T bl_halt
+0000003c T bl_main
+00001000 T __fw_slot_start
+0001f000 A __fw_slot_size
+00020000 T _bl_ebss
+00020000 T _bl_edata
+00020000 T _bl_sbss
+00020000 T _bl_sdata
+00040000 T _bl_stack_top

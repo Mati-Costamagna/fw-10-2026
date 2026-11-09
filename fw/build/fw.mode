@@ -1,0 +1,1 @@
+APP_SRC=print.c test_fw_status.c APP_MARCH=rv32i CORRUPT= STANDALONE=
