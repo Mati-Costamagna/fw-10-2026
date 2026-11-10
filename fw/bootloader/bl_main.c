@@ -1,7 +1,7 @@
 /*
  * bl_main.c — TP4 (Bloque 4): lógica del BOOTLOADER
  *
- * COMPLETAR los TODO.
+ * Hitos 5 y 7 de la consigna.
  *   - Hito 5: con los pasos (0) y (6) alcanza para arrancar el FW sin validar nada.
  *   - Hito 7: se agregan las validaciones (1) a (5) y bl_fail(). El CRC es tu
  *     str_crc8() del TP3: el Makefile compila la implementación local de lib/src/strutils.c.
@@ -61,7 +61,7 @@ static void bl_log_hex(const char *msg, uint32_t val)
     print_str(line);
 }
 
-/* TODO (hito 7): error -> que quede visible y que la simulación termine.
+/* (hito 7) bl_fail(): error -> que quede visible y que la simulación termine.
  *   - mensaje por UART (why);
  *   - REG_FW_REPORT = BL_REPORT_ERROR | code;
  *   - REG_FW_STATUS = 0xBAD;

@@ -5,7 +5,7 @@ make[2]: Nothing to be done for 'default'.
 make[2]: Leaving directory '/home/matias/Documents/Marvell/fw-10-2026/obj_dir'
 - V e r i l a t i o n   R e p o r t: Verilator 5.032 2025-01-01 rev v5.032
 - Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
-- Verilator: Walltime 0.020 s (elab=0.000, cvt=0.000, bld=0.014); cpu 0.002 s on 1 threads; alloced 8.250 MB
+- Verilator: Walltime 0.013 s (elab=0.000, cvt=0.000, bld=0.012); cpu 0.001 s on 1 threads; alloced 8.250 MB
 ./obj_dir/Vtestbench
 loading: 00000000 -> 0140006f
 loading: 00000001 -> 0300006f
@@ -1371,8 +1371,8 @@ total clocks:                45341
  READ =                 2896, WRITE =                  583
 -- total instruction access =                13070
  READ =                13070, WRITE =                    0
-- rtl/testbench.sv:62: Verilog $finish
+- rtl/testbench.sv:61: Verilog $finish
 - S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
-- Verilator: $finish at 455us; walltime 1.027 s; speed 1.189 ms/s
-- Verilator: cpu 0.383 s on 1 threads; alloced 57 MB
+- Verilator: $finish at 455us; walltime 0.435 s; speed 1.045 ms/s
+- Verilator: cpu 0.435 s on 1 threads; alloced 57 MB
 make[1]: Leaving directory '/home/matias/Documents/Marvell/fw-10-2026'

@@ -1,7 +1,7 @@
 /*
  * bl_start.S — TP4 (Bloque 4): vector table + arranque mínimo del BOOTLOADER
  *
- * COMPLETAR los TODO (hitos 2 y 5 de la consigna).
+ * Hitos 2 y 5 de la consigna.
  *
  * Datos de la plataforma (platform/rtl/top.v, parámetros de picorv32):
  *   - PROGADDR_RESET = 0x0000_0000: al salir de reset el core EJECUTA lo que hay ahí.
