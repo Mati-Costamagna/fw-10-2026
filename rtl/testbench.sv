@@ -5,7 +5,6 @@ module testbench;
 
     reg clk = 1;
     reg resetn = 0;
-    wire trap;
     reg [63:0]clock_counts ;
     always #5 clk = ~clk;
 
@@ -41,12 +40,12 @@ module testbench;
         count_ins_access_read   = 64'b0   ;
         count_ins_access_write  = 64'b0   ;
         clock_counts            = 64'b0   ;
-        while(u_top.u_register_file.REGISTER_FW_STATUS != 32'hFF && trap == 0 )begin
+        while(u_top.u_register_file.REGISTER_FW_STATUS != 32'hFF && u_top.trap == 0 )begin
             @(posedge clk);
             clock_counts = clock_counts + 64'b1;
         end
         repeat (100) @(posedge clk);
-        if (trap)begin
+        if (u_top.trap)begin
             repeat(30) @(posedge clk);
             $display("------ TRAP! ------- clock_counts = %d",clock_counts);
         end else begin
