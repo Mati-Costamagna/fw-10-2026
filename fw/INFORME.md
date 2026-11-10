@@ -1,4 +1,4 @@
-# TP4 — Informe (hitos 1 a 5)
+# TP4 — Informe (hitos 1 a 8)
 
 ---
 
@@ -240,6 +240,214 @@ a 16, y `reset_handler` dentro de la imagen y alineado a 4. Si todo esta bien de
 | `make sim` | `[BL] imagen del FW valida` → FW → `REGISTER_FW_STATUS = 000000ff` |
 | `make sim CORRUPT=1` | `[BL] ERROR: CRC invalido, imagen corrupta` → `------ TRAP! ------- clock_counts = 28874` |
 
-**Testbench del repo:** `rtl/testbench.sv` declara `wire trap;` sin conectarlo a `u_top.trap` 
+Testbench del repo: `rtl/testbench.sv` declara `wire trap;` sin conectarlo a `u_top.trap` 
 (`top` no tiene puerto `trap`), por lo que tal cual está el trap nunca llega al testbench y 
 `CORRUPT=1` corre sin terminar. Error que viene arrastrado desde el TP1.
+
+---
+
+## Hito 8 — Revisar la memoria y matchear con el HEX (diapo 12)
+
+Todo con el FW que tiene `.data` y `.bss` (para el paso 4):
+
+```bash
+make sim APP_SRC="print.c test_data_bss.c"
+make check
+make inspect APP_SRC="print.c test_data_bss.c"
+```
+
+`make inspect` depende de `build/fw.mode`, así que rearma la imagen si cambia `APP_SRC`. 
+Un `make inspect` sin `APP_SRC` vuelve a `test_fw_status.c` y ya no muestra lo que se 
+simulo: hay que pasarle el mismo `APP_SRC`. `make check` no rearma nada.
+
+### 1. El `.hex` y los `.map`
+
+`fw.hex` tiene una palabra de 32 bits por linea, a partir de la direccion 0:
+**linea N = direccion `4·(N−1)`** (y direccion A = linea `A/4 + 1`). La imagen tiene 1468
+lineas (`0x0000`–`0x16EF`):
+
+| Lineas de `fw.hex` | Direcciones | Contenido |
+|---|---|---|
+| 1–5 | `0x0000`–`0x0010` | vector table del BL (5 `j`) |
+| 6–354 | `0x0014`–`0x0587` | resto del BL (`bl.bin` = 1416 B) |
+| 355–1024 | `0x0588`–`0x0FFF` | relleno de `mkimage.py` con `0x00000000` (instruccion ilegal → trap) |
+| **1025**–1030 | `0x1000`–`0x1017` | header + vector table del FW |
+| 1031–1463 | `0x1018`–`0x16DB` | `Reset_Handler`, codigo y `.rodata` del FW |
+| 1464–1468 | `0x16DC`–`0x16EF` | valores iniciales de `.data` (LMA, `_sidata`) |
+
+```
+línea  dirección   fw.hex
+    1  0x00000000  0140006f   j bl_reset_handler   <- PROGADDR_RESET
+    5  0x00000010  0240006f   j bl_unexpected      <- PROGADDR_IRQ
+    6  0x00000014  00040117   auipc sp,0x40        <- bl_reset_handler
+ 1024  0x00000ffc  00000000   relleno
+ 1025  0x00001000  46345054   magic "TP4F"         <- __fw_slot_start / __fw_header
+ 1030  0x00001014  00001018   reset_handler
+ 1031  0x00001018  0003f117   auipc sp,0x3f        <- Reset_Handler
+```
+
+Los `.map` muestran lo mismo desde el lado del linker:
+
+```
+build/bl.map
+  BL_ROM 0x00000000 0x00001000 / APP_ROM 0x00001000 0x0001f000 / RAM 0x00020000 0x00020000
+  .text           0x00000000      0x588
+   .vectors       0x00000000       0x14       _bl_vectors          <- primera, en 0x0
+  .data           0x00020000        0x0                            <- vacías: el BL no tiene globales
+  .bss            0x00020000        0x0
+  0x00040000  _bl_stack_top     0x00001000  __fw_slot_start     0x0001f000  __fw_slot_size
+
+build/app.map
+  .text           0x00001000      0x6dc
+   .fw_header     0x00001000       0x18       __fw_header          <- primera, en 0x1000
+  .data           0x00020000       0x14 load address 0x000016dc    <- VMA en RAM, LMA en APP_ROM
+   .data          0x00020000       0x10       (tp4_data_array)
+   .sdata         0x00020010        0x4       (tp4_data_word)
+  0x000016dc  _sidata = LOADADDR (.data)
+  .bss            0x00020014       0x44
+   .sbss          0x00020014        0x4       (tp4_bss_word)
+   .bss           0x00020018       0x40       (tp4_bss_array)
+  0x000016f0  __fw_end    0x000006f0  __fw_size    0x00040000  _stack_top
+```
+
+`bl.map` dice que el BL termina en `0x587` (línea 354) y `app.map` que la imagen del FW
+termina en `__fw_end = 0x16F0` (la linea 1468 es la ultima palabra, `0x16EC`). Los dos
+coinciden con lo que imprime `mkimage.py` y con el largo de `fw.hex`.
+
+### 2. readelf / objdump
+
+Vector table del BL (`objdump -d build/bl.elf`): son **instrucciones**, y las mismas
+palabras que las líneas 1–5 de `fw.hex`.
+
+```
+00000000 <_bl_vectors>:
+   0:  0140006f   j  14 <bl_reset_handler>
+   4:  0300006f   j  34 <bl_unexpected>
+   8:  02c0006f   j  34 <bl_unexpected>
+   c:  0280006f   j  34 <bl_unexpected>
+  10:  0240006f   j  34 <bl_unexpected>
+00000014 <bl_reset_handler>:
+  14:  00040117   auipc sp,0x40
+  18:  fec10113   addi  sp,sp,-20 # 40000 <_bl_stack_top>
+  1c:  06c000ef   jal   88 <bl_main>
+```
+
+Header del FW (`objdump -s -j .text --start-address=0x1000 --stop-address=0x1018 build/app.elf`):
+son **datos** (little-endian), y las mismas palabras que las lineas 1025–1030:
+
+```
+ 1000 54503446 00100000 f0060000 ffffffff  TP4F............
+ 1010 00000400 18100000                    ........
+```
+
+| Dirección | Campo | `app.elf` | `fw.hex` (línea) |
+|---|---|---|---|
+| `0x1000` | `magic` | `0x46345054` | `46345054` (1025) |
+| `0x1004` | `load_addr` | `0x00001000` | `00001000` (1026) |
+| `0x1008` | `image_size` | `0x000006F0` | `000006f0` (1027) |
+| `0x100C` | `image_crc` | `0xFFFFFFFF` (`FW_IMAGE_CRC_UNSET`) | **`0000003f`** (1028) |
+| `0x1010` | `initial_sp` | `0x00040000` | `00040000` (1029) |
+| `0x1014` | `reset_handler` | `0x00001018` | `00001018` (1030) |
+
+La unica palabra que difiere es el CRC, porque lo escribe `mkimage.py` despues de linkear
+(ver hito 4).
+
+### 3. Vector table del FW → `Reset_Handler`
+
+Los tres valores coinciden:
+
+```
+fw.hex línea 1030 (0x1014)          00001018
+nm -n build/app.elf                 00001018 T Reset_Handler
+readelf -h build/app.elf            Entry point address: 0x1018
+```
+
+`readelf -h build/bl.elf` da `Entry point address: 0x0` (`_bl_vectors`). El core no lee
+ninguno de los dos *Entry point*: arranca en `PROGADDR_RESET = 0x0`, y el BL usa el campo
+`reset_handler` del header, que es la misma direccion. Por eso el BL imprime
+`reset_handler=0x00001018`. En `0x1018` esta la primera instruccion del `Reset_Handler`
+(`auipc sp,0x3f`, linea 1031), justo despues del header, como fuerza `app.ld` con
+`*(.text.Reset_Handler)`.
+
+### 4. `.data` y `.bss` donde dice el linker script
+
+```
+readelf -S -l build/app.elf
+  [1] .text  PROGBITS 00001000 size 0x6dc  AX
+  [2] .data  PROGBITS 00020000 size 0x014  WA
+  [3] .bss   NOBITS   00020014 size 0x044  WA
+  Type  Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg
+  LOAD  0x001000 0x00001000 0x00001000 0x006dc 0x006dc R E   .text
+  LOAD  0x002000 0x00020000 0x000016dc 0x00014 0x00058 RW    .data .bss
+
+nm -n build/app.elf
+  000016dc A _sidata          00020000 D _sdata, tp4_data_array
+  000016f0 A __fw_end         00020010 D tp4_data_word
+  000006f0 A __fw_size        00020014 D _edata
+                              00020014 B _sbss, tp4_bss_word
+                              00020018 B tp4_bss_array
+                              00020058 B _ebss
+                              00040000 B _stack_top
+```
+
+- **`.data`:** VMA `0x20000` (RAM) y LMA `0x16DC` (`PhysAddr` = `_sidata`, dentro de
+  `APP_ROM`, justo despues de `.text`). `FileSiz = 0x14` son los 20 bytes de valores iniciales
+  que viajan en la imagen. Estan en las lineas 1464–1468 de `fw.hex`:
+  `00000001 00000002 00000003 00000004` (`tp4_data_array`) y `1234abcd` (`tp4_data_word`,
+  en `.sdata`). Es lo mismo que `objdump -s -j .data` muestra en `0x20000`.
+- **`.bss`:** `NOBITS`. No ocupa lugar en el archivo ni en `fw.hex` (`MemSiz − FileSiz =
+  0x58 − 0x14 = 0x44`), y la imagen termina en `__fw_end = 0x16F0`, antes de su "load address".
+  `.sbss` quedo dentro de `_sbss`..`_ebss`.
+- **El `Reset_Handler`** usa esos mismos simbolos (`objdump -d`): copia de `0x16DC`
+  (`_sidata`) a `0x20000`..`0x20014` y pone en cero `0x20014`..`0x20058`.
+- **Lo que imprime `test_data_bss.c`** coincide con `nm` y con la imagen:
+
+  ```
+  UART: [FW]   &tp4_data_word  = 0x00020010     <- nm: 00020010 D tp4_data_word
+  UART: [FW]    tp4_data_word  = 0x1234ABCD     <- fw.hex línea 1468 (LMA 0x16EC), copiado a RAM
+  UART: [FW]   &tp4_bss_array  = 0x00020018     <- nm: 00020018 B tp4_bss_array
+  UART: [FW] test_data_bss: PASS
+  ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 000000ff
+  ```
+
+### 5. `fw.hex` vs. lo que cargo el simulador
+
+`init_memory()` imprime `loading: <i> -> <dato>`, donde `<i>` es el **indice de palabra**
+de `memory_i` (el comentario `// byte address` del testbench está mal: `addr += 1` por linea).
+Direccion = `4·i`, linea = `i + 1`:
+
+```
+loading: 00000000 -> 0140006f    i=0      -> 0x0000, línea 1
+loading: 00000400 -> 46345054    i=0x400  -> 0x1000, línea 1025 (magic)
+loading: 00000405 -> 00001018    i=0x405  -> 0x1014, línea 1030 (reset_handler)
+loading: 000005bb -> 1234abcd    i=0x5bb  -> 0x16EC, línea 1468 (última)
+```
+
+```
+make check
+[hex] build/fw.hex: 1468 palabras (0x00000000-0x000016ef)
+[log] build/sim.log: init_memory() cargó 1468 palabras en memory_i
+[log] OK: lo que cargó el simulador coincide palabra por palabra con fw.hex
+Vector table del BL:  0x00000000  0140006f  j 0x00000014 <bl_reset_handler>  PROGADDR_RESET
+                      0x00000010  0240006f  j 0x00000034 <bl_unexpected>     PROGADDR_IRQ
+Header + vector table del FW en 0x00001000 (línea 1025 de fw.hex):
+  +0x00 magic         0x46345054 OK
+  +0x04 load_addr     0x00001000 OK
+  +0x08 image_size    0x000006f0 (1776 B, hasta 0x000016ef) OK
+  +0x0C image_crc     0x0000003f (recalculado: 0x0000003f) OK
+  +0x10 initial_sp    0x00040000 <_stack_top> OK
+  +0x14 reset_handler 0x00001018 <Reset_Handler> OK
+  Reset_Handler según nm: 0x00001018 OK
+RESULTADO: OK
+```
+
+Con el FW por defecto (`make sim && make check`, `test_fw_status.c`) tambien da
+**`RESULTADO: OK`**: 1302 palabras, `image_size = 0x458`, `image_crc = 0xF1`.
+
+**Prueba negativa:** para ver que el chequeo compara de verdad, corri `check_load.py` con
+una copia de `fw.hex` con un bit cambiado en la ultima palabra y el mismo `sim.log`. Da
+`DIFERENCIA 0x000016ec (línea 1468): fw.hex=1234abcc cargado=1234abcd` y sale con
+error. Lo mismo pasa si se rearma la imagen y se corre `make check` sin volver a simular,
+porque el `sim.log` queda viejo. Con el `fw.hex` de `test_data_bss.c` contra el `sim.log` de
+`test_fw_status.c` da, entre otras, `DIFERENCIA 0x00001008 (línea 1027): fw.hex=000006f0
+cargado=00000458` (el `image_size` de cada FW).
