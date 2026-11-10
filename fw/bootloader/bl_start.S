@@ -66,14 +66,13 @@ bl_reset_handler:
     .globl  bl_jump
     .type   bl_jump, @function
 bl_jump:
-    /* TODO (hito 5): pasarle el control al FW.
-     *   - Se llama desde C: ¿en qué registros llegan sp y entry según la ABI ILP32?
-     *   - Cargar el SP que pide el FW y SALTAR a su Reset_Handler.
-     *   - Pregunta: ¿salto con link (jalr ra) o sin link (jr)? ¿Qué conviene
-     *     dejar en ra?
-     */
+    /* ABI ILP32: a0 = sp, a1 = entry. Salto SIN link (jr): el FW no vuelve,
+     * asi que ra queda en 0 (si main retornara, caeria en 0x0 = reset del BL). */
+    mv      t0, a1                  /* guardar entry antes de pisar nada */
+    mv      sp, a0                  /* sp que pide el FW */
+    li      ra, 0
+    jr      t0
 
-    j       bl_unexpected
     .size   bl_jump, . - bl_jump
 
 /* ------------------------------------------------------------------------ */

@@ -1,4 +1,4 @@
-# TP4 — Informe (hitos 1 a 4)
+# TP4 — Informe (hitos 1 a 5)
 
 ---
 
@@ -149,3 +149,47 @@ descartable que solo salta a `reset_handler`, porque el salto real es del hito 5
 ---
 
 ## Hito 5 - El salto del BL al FW
+
+### `bl_jump(sp, entry)` (`bl_start.S`)
+
+Segun la ABI ILP32 los argumentos llegan en registros: `sp` en `a0` y `entry`
+en `a1`. Desensamblado de `build/bl.elf`:
+
+```
+00000024 <bl_jump>:
+  24:  mv   t0,a1      # guardar entry antes de pisar nada
+  28:  mv   sp,a0      # sp que pide el FW (initial_sp del header)
+  2c:  li   ra,0       # ra = 0
+  30:  jr   t0         # salto SIN link a Reset_Handler
+```
+
+- **¿`jalr ra` o `jr`?** `jr` (sin link). El FW no vuelve al BL: no hay nada a
+  donde retornar, y un `jalr` dejaria en `ra` una direccion del BL que ya no
+  tiene sentido (el BL no guarda estado).
+- **¿Que queda en `ra`?** `0`. Si `main` del FW retornara sin pasar por el
+  `ebreak` del `Reset_Handler`, caeria en `0x0` (reset del BL) en vez de
+  ejecutar basura.
+- El `sp` se carga recien al final del BL porque el `Reset_Handler` del FW
+  asume que ya tiene un stack valido y el BL ya no lo necesita.
+
+### `bl_main()` (`bl_main.c`)
+
+1. `REG_FW_STATUS = 0`, `REG_FW_REPORT = BL_REPORT_START` y mensaje `[BL] arrancó`.
+2. Lee `initial_sp` y `reset_handler` del header (`__fw_slot_start`, `0x1000`).
+3. Imprime el `reset_handler`, marca `BL_REPORT_JUMP` y llama a `bl_jump()`.
+
+### Resultado de `make sim`
+
+```
+UART: [BL] arrancó
+UART: [BL] saltando al FW, reset_handler=0x00001018
+UART: -- running test_fw_status --
+UART: 0
+...
+UART: -- test done! --
+ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 000000ff
+```
+
+El `reset_handler=0x00001018` coincide con el que muestra `mkimage.py` (hito 4):
+el BL salta efectivamente al `Reset_Handler` del FW, que corre igual que en el
+flujo standalone.

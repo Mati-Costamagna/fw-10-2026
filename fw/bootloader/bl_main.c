@@ -77,8 +77,10 @@ void bl_main(void)
 {
     const fw_image_header_t *hdr = &__fw_slot_start;    /* header + vector table del FW */
 
-    /* TODO (hito 5) (0) Avisar que el BL arrancó: REG_FW_STATUS = 0 (corriendo),
-     *                    REG_FW_REPORT = BL_REPORT_START y un mensaje por UART. */
+    /* (hito 5) (0) Avisar que el BL arrancó */
+    REG_FW_STATUS = 0;
+    REG_FW_REPORT = BL_REPORT_START;
+    print_str("[BL] arrancó");
 
     /* TODO (hito 7) (1) magic == FW_IMAGE_MAGIC                       -> si no, BL_ERR_MAGIC
      *                (2) load_addr == dirección del slot               -> si no, BL_ERR_LOAD_ADDR
@@ -89,9 +91,12 @@ void bl_main(void)
      *                    dentro de la imagen y alineado a 4            -> BL_ERR_SP / BL_ERR_ENTRY
      *   Pista: la RAM está en config.h (ADDR_START_DATA, ADDR_SIZE_DATA). */
 
-    /* TODO (hito 5) (6) Leer initial_sp y reset_handler de la vector table del FW
-     *                    (hdr->...), marcar BL_REPORT_JUMP y saltar con bl_jump(). */
+    /* (hito 5) (6) Leer la vector table del FW y saltar */
+    uint32_t sp    = hdr->initial_sp;
+    uint32_t entry = hdr->reset_handler;
 
-    (void)hdr; (void)bl_log_hex;                      /* borrar al completar */
-    bl_fail(BL_ERR_MAGIC, "[BL] TODO: bl_main() sin completar");   /* borrar al completar */
+    bl_log_hex("[BL] saltando al FW, reset_handler=", entry);
+    REG_FW_REPORT = BL_REPORT_JUMP;
+    (void)bl_fail;
+    bl_jump(sp, entry);
 }
