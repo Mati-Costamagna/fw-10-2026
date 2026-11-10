@@ -3,9 +3,11 @@
 00000024 T bl_jump
 00000034 T bl_unexpected
 00000044 T bl_halt
-0000004c T bl_main
-0000013c t uart0_send.part.0
-00000194 T print_str
+0000004c t bl_fail
+00000088 T bl_main
+00000258 t uart0_send.part.0
+000002b0 T print_str
+000002e0 T str_crc8
 00001000 T __fw_slot_start
 0001f000 A __fw_slot_size
 00020000 T _bl_ebss

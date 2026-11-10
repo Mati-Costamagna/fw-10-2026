@@ -68,8 +68,10 @@ static void bl_log_hex(const char *msg, uint32_t val)
  *   - y cortar con bl_halt() (¿por qué no alcanza con 0xBAD?). */
 static void __attribute__((noreturn)) bl_fail(enum bl_error code, const char *why)
 {
-    (void)code;
-    (void)why;
+    print_str(why);
+    REG_FW_REPORT = BL_REPORT_ERROR | (uint32_t)code;
+    REG_FW_STATUS = 0xBAD;
+    /* 0xBAD solo no termina la simulación (solo 0xFF o un trap la cortan) */
     bl_halt();
 }
 
@@ -82,14 +84,30 @@ void bl_main(void)
     REG_FW_REPORT = BL_REPORT_START;
     print_str("[BL] arrancó");
 
-    /* TODO (hito 7) (1) magic == FW_IMAGE_MAGIC                       -> si no, BL_ERR_MAGIC
-     *                (2) load_addr == dirección del slot               -> si no, BL_ERR_LOAD_ADDR
-     *                (3) FW_HDR_SIZE <= image_size <= tamaño del slot  -> si no, BL_ERR_SIZE
-     *                (4) str_crc8() de [slot + FW_IMAGE_CRC_START, slot + image_size)
-     *                    == image_crc                                  -> si no, BL_ERR_CRC
-     *                (5) initial_sp dentro de la RAM y alineado a 16, reset_handler
-     *                    dentro de la imagen y alineado a 4            -> BL_ERR_SP / BL_ERR_ENTRY
-     *   Pista: la RAM está en config.h (ADDR_START_DATA, ADDR_SIZE_DATA). */
+    const uint32_t slot      = (uint32_t)(uintptr_t)&__fw_slot_start;
+    const uint32_t slot_size = (uint32_t)(uintptr_t)__fw_slot_size;
+    const uint32_t ram_start = ADDR_START_DATA;
+    const uint32_t ram_end   = ADDR_START_DATA + ADDR_SIZE_DATA;
+
+    if (hdr->magic != FW_IMAGE_MAGIC)
+        bl_fail(BL_ERR_MAGIC, "[BL] ERROR: magic invalido, no hay FW");
+    if (hdr->load_addr != slot)
+        bl_fail(BL_ERR_LOAD_ADDR, "[BL] ERROR: load_addr distinto del slot");
+    if (hdr->image_size < FW_HDR_SIZE || hdr->image_size > slot_size)
+        bl_fail(BL_ERR_SIZE, "[BL] ERROR: image_size fuera del slot");
+    if (str_crc8((const uint8_t *)slot + FW_IMAGE_CRC_START,
+                 hdr->image_size - FW_IMAGE_CRC_START) != hdr->image_crc)
+        bl_fail(BL_ERR_CRC, "[BL] ERROR: CRC invalido, imagen corrupta");
+    if (hdr->initial_sp < ram_start || hdr->initial_sp > ram_end ||
+        (hdr->initial_sp & 0xFu) != 0)
+        bl_fail(BL_ERR_SP, "[BL] ERROR: initial_sp fuera de la RAM o desalineado");
+    if (hdr->reset_handler < slot + FW_HDR_SIZE ||
+        hdr->reset_handler >= slot + hdr->image_size ||
+        (hdr->reset_handler & 0x3u) != 0)
+        bl_fail(BL_ERR_ENTRY, "[BL] ERROR: reset_handler fuera de la imagen");
+
+    REG_FW_REPORT = BL_REPORT_IMG_OK;
+    print_str("[BL] imagen del FW valida");
 
     /* (hito 5) (6) Leer la vector table del FW y saltar */
     uint32_t sp    = hdr->initial_sp;
@@ -97,6 +115,5 @@ void bl_main(void)
 
     bl_log_hex("[BL] saltando al FW, reset_handler=", entry);
     REG_FW_REPORT = BL_REPORT_JUMP;
-    (void)bl_fail;
     bl_jump(sp, entry);
 }

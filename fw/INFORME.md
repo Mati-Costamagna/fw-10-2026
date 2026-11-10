@@ -220,3 +220,26 @@ hardware real tendria basura). Con `app_startup.S` el `Reset_Handler` copia
 
 En el caso standalone, el test termina en FAIL dejando `REG_FW_STATUS = 0xBAD` (no 
 `0xFF`), por lo que la simulacion corre hasta el timeout.
+
+---
+
+## Hito 7 — Validar la imagen antes de saltar (`bl_main.c`)
+
+`bl_main()` valida, en orden y antes de `bl_jump()`: `magic`, `load_addr == slot`,
+`FW_HDR_SIZE <= image_size <= tamaño del slot`, CRC-8 de `[slot+0x10, slot+image_size)`
+(`str_crc8`), `initial_sp` dentro de la RAM (`ADDR_START_DATA`..`+ADDR_SIZE_DATA`) y alineado
+a 16, y `reset_handler` dentro de la imagen y alineado a 4. Si todo esta bien deja
+`REG_FW_REPORT = BL_REPORT_IMG_OK` e imprime `[BL] imagen del FW valida`.
+
+`bl_fail(code, why)`: imprime `why`, `REG_FW_REPORT = BL_REPORT_ERROR | code`,
+`REG_FW_STATUS = 0xBAD` y `bl_halt()`. No alcanza con `0xBAD`: el testbench solo corta con
+`0xFF` o con trap, así que hace falta el `ebreak` de `bl_halt()`.
+
+| Corrida | Resultado |
+|---|---|
+| `make sim` | `[BL] imagen del FW valida` → FW → `REGISTER_FW_STATUS = 000000ff` |
+| `make sim CORRUPT=1` | `[BL] ERROR: CRC invalido, imagen corrupta` → `------ TRAP! ------- clock_counts = 28874` |
+
+**Testbench del repo:** `rtl/testbench.sv` declara `wire trap;` sin conectarlo a `u_top.trap` 
+(`top` no tiene puerto `trap`), por lo que tal cual está el trap nunca llega al testbench y 
+`CORRUPT=1` corre sin terminar. Error que viene arrastrado desde el TP1.
