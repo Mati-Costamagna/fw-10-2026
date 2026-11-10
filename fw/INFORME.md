@@ -193,3 +193,30 @@ ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 000000ff
 El `reset_handler=0x00001018` coincide con el que muestra `mkimage.py` (hito 4):
 el BL salta efectivamente al `Reset_Handler` del FW, que corre igual que en el
 flujo standalone.
+
+---
+
+## Hito 6 — Verificar `.data` y `.bss`
+
+```bash
+make sim APP_SRC="print.c test_data_bss.c"                # PASS
+make sim APP_SRC="print.c test_data_bss.c" STANDALONE=1   # FAIL (arranque original)
+```
+
+| Flujo | `&tp4_data_word` | `tp4_data_word` | Resultado |
+|---|---|---|---|
+| BL + FW (`app_startup.S`) | `0x00020010` | `0x1234ABCD` | `test_data_bss: PASS`, `REGISTER_FW_STATUS = 000000ff` |
+| `STANDALONE=1` (`startup.S`) | `0x00020010` | `0x00000000` | `FAIL: tp4_data_word (.sdata) no tiene su valor inicial` |
+
+**Por que falla con el arranque original:** `startup.S` solo carga `sp` y llama
+a `main`. No copia `.data` desde su LMA (en la imagen) a su VMA (RAM,
+`0x0002_0000`), y `linker.ld` ni siquiera define `_sidata`/`_sdata`/`_edata`.
+La imagen (`fw.hex`) solo trae el valor `0x1234ABCD` en la zona de la ROM; la
+RAM no se carga desde el hex y arranca en 0, así que `tp4_data_word` (que cae en
+`.sdata`) lee `0`. Tampoco hay `_sbss`/`_ebss`: `.sbss` queda huerfana y `.bss` no se
+pone en cero (en simulacion da lo mismo porque la RAM arranca en 0, pero en
+hardware real tendria basura). Con `app_startup.S` el `Reset_Handler` copia
+`.data` desde `_sidata` y pone `.bss` en cero antes de `main`, y el test pasa.
+
+En el caso standalone, el test termina en FAIL dejando `REG_FW_STATUS = 0xBAD` (no 
+`0xFF`), por lo que la simulacion corre hasta el timeout.
