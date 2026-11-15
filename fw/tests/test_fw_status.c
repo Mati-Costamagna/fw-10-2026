@@ -1,4 +1,3 @@
-
 #include "includes.h"
 
 #define ITERATIONS 20
@@ -6,6 +5,7 @@
 volatile int int_0 ;
 volatile int int_1 ;
 volatile int int_2 ;
+
 
 void main(){
     REG_FW_STATUS = 0x0 ;
@@ -33,7 +33,7 @@ void main(){
 
         REG_FW_REPORT = i;
     } 
-
+    
     print_str("-- test done! --");
     
     REG_FW_STATUS = 0xFF;

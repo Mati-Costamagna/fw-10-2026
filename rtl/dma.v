@@ -96,7 +96,7 @@ always @(posedge i_clk)begin
                     if(i_bus_ready)begin // go to idle status
                         bus_valid  <= 1'b0;
                         bus_wstrb <= 4'b0000;
-                        if(address_count <= dma_size)begin
+                        if(address_count + 32'b1 < dma_size)begin   // copy exactly dma_size words
                             address_count <= address_count + 32'b1;
                         end else begin
                             dma_done <= 1'b1;

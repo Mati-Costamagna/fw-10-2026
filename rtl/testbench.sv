@@ -6,12 +6,19 @@ module testbench;
     reg clk = 1;
     reg resetn = 0;
     reg [63:0]clock_counts ;
+    string  hex_path;      // +FW_HEX=<archivo>   (default fw/fw.hex)
+    integer max_cycles;    // +MAX_CYCLES=<n>     (default 0 = sin limite)
+    string  result;        // PASS | FAIL | TRAP | TIMEOUT
+    string  script_path;   // +UART1_SCRIPT=<archivo>  patron de test que maneja la UART1 (ver uart1_host.svh)
+    bit     have_script;
     always #5 clk = ~clk;
 
     top  u_top (
         .i_clk    (clk    ),
         .i_resetn (resetn )
     );
+
+    `include "rtl/uart1_host.svh"
 
     initial begin
         u_top.fake_uart0_data_input       = 32'b0;
@@ -21,9 +28,15 @@ module testbench;
     end
 
     initial begin
-        $dumpfile("wave.vcd");
-        // $dumpfile("wave.fst");
-        $dumpvars;
+        if (!$value$plusargs("FW_HEX=%s", hex_path)) hex_path = "fw/fw.hex";
+        if (!$value$plusargs("MAX_CYCLES=%d", max_cycles)) max_cycles = 0;
+        have_script = $value$plusargs("UART1_SCRIPT=%s", script_path);
+        verbose     = $test$plusargs("VERBOSE");
+        if (!$test$plusargs("NOWAVE")) begin     // +NOWAVE: sin VCD (mas rapido, p. ej. make test)
+            $dumpfile("wave.vcd");
+            // $dumpfile("wave.fst");
+            $dumpvars;
+        end
 
         repeat (10) @(posedge clk);
         init_memory();
@@ -31,6 +44,7 @@ module testbench;
 		uart_sniffer();
 		uart_trnasmiter();
 		led_monitor();
+        if (have_script) fork host_monitor(); join_none
 
         repeat (10) @(posedge clk);
         resetn <= 1;
@@ -40,12 +54,59 @@ module testbench;
         count_ins_access_read   = 64'b0   ;
         count_ins_access_write  = 64'b0   ;
         clock_counts            = 64'b0   ;
-        while(u_top.u_register_file.REGISTER_FW_STATUS != 32'hFF && u_top.trap == 0 )begin
-            @(posedge clk);
-            clock_counts = clock_counts + 64'b1;
+        if (have_script) begin
+            // test con host: el script manda y espera bytes por UART1; termina cuando el script
+            // termina, el core hace trap, el FW escribe 0xBAD o se agota +MAX_CYCLES
+            fork
+                begin run_script(script_path); script_done = 1; end
+                begin
+                    while (u_top.trap !== 1'b1 && u_top.u_register_file.REGISTER_FW_STATUS != 32'hBAD)
+                        @(posedge clk);
+                end
+                begin
+                    while (max_cycles == 0 || clock_counts < max_cycles) begin
+                        @(posedge clk);
+                        clock_counts = clock_counts + 64'b1;
+                    end
+                end
+            join_any
+            repeat (100) @(posedge clk);
+            if (u_top.trap === 1'b1)
+                script_fail("el core hizo TRAP (instruccion ilegal o acceso desalineado)");
+            else if (u_top.u_register_file.REGISTER_FW_STATUS == 32'hBAD)
+                script_fail("el FW termino con REG_FW_STATUS = 0xBAD");
+            else if (!script_done)
+                script_fail($sformatf("timeout: el script no termino en %0d clocks (FW colgado?)", max_cycles));
+            if (checks_fail == 0 && checks_total > 0) begin
+                $display("\033[32mCHECK PASS (%0d/%0d)\033[0m", checks_total, checks_total);
+                result = "PASS";
+            end else begin
+                $display("\033[31mCHECK FAIL (%0d fallas de %0d)\033[0m", checks_fail, checks_total);
+                result = u_top.trap === 1'b1 ? "TRAP" : !script_done ? "TIMEOUT" : "FAIL";
+            end
+        end else begin
+            // fin: el FW escribe 0xFF (OK) o 0xBAD (fallo), el core hace trap, o se agota +MAX_CYCLES
+            while(u_top.u_register_file.REGISTER_FW_STATUS != 32'hFF &&
+                  u_top.u_register_file.REGISTER_FW_STATUS != 32'hBAD &&
+                  u_top.trap !== 1'b1 &&
+                  (max_cycles == 0 || clock_counts < max_cycles)) begin
+                @(posedge clk);
+                clock_counts = clock_counts + 64'b1;
+            end
+            repeat (100) @(posedge clk);
+            if      (u_top.u_register_file.REGISTER_FW_STATUS == 32'hFF)  result = "PASS";
+            else if (u_top.u_register_file.REGISTER_FW_STATUS == 32'hBAD) result = "FAIL";
+            else if (u_top.trap === 1'b1)                                  result = "TRAP";
+            else                                                           result = "TIMEOUT";
         end
-        repeat (100) @(posedge clk);
-        if (u_top.trap)begin
+        // chequeo de protocolo UART0: cada START pide `size` bytes y el UART tiene que transmitir
+        // exactamente esos (si el arranque retriggerea, salen mensajes duplicados)
+        if (uart0_tx_bytes != uart0_req_bytes) begin
+            $display("ERROR UART0 TX: el FW pidio %0d bytes y el UART transmitio %0d (arranque duplicado?)",
+                     uart0_req_bytes, uart0_tx_bytes);
+            if (result == "PASS") result = "FAIL";
+        end
+        if (u_top.trap === 1'b1)begin
             repeat(30) @(posedge clk);
             $display("------ TRAP! ------- clock_counts = %d",clock_counts);
         end else begin
@@ -57,10 +118,23 @@ module testbench;
         $display(" READ = %d, WRITE = %d",count_mem_access_read,count_mem_access_write);
         $display("-- total instruction access = %d",count_ins_access_write+count_ins_access_read);
         $display(" READ = %d, WRITE = %d",count_ins_access_read,count_ins_access_write);
-        
+        $display("RESULT: %s", result);
+
         $finish;
     end
 
+
+    // bytes pedidos por el FW (flancos de START_TRANSMIT x SIZE) vs bytes que transmite UART0
+    integer uart0_req_bytes = 0;
+    integer uart0_tx_bytes  = 0;
+    reg     uart0_start_q   = 1'b0;
+    always @(posedge clk) begin
+        uart0_start_q <= u_top.uart0_start_transmit[0];
+        if (u_top.uart0_start_transmit[0] && !uart0_start_q)
+            uart0_req_bytes <= uart0_req_bytes + u_top.uart0_size_to_transmit;
+        if (u_top.u_uart0.o_valid_output)
+            uart0_tx_bytes <= uart0_tx_bytes + 1;
+    end
 
 `ifdef DEBUG_PRINTS
     always @(posedge clk) begin
@@ -110,8 +184,8 @@ module testbench;
     	string line;
     	logic [31:0] data;
     	int addr;
-        fd = $fopen("fw/fw.hex", "r");
-        if (fd == 0) begin $fatal("Cannot open fw.hex"); end
+        fd = $fopen(hex_path, "r");
+        if (fd == 0) begin $fatal(1, "Cannot open %s", hex_path); end
         addr = 0;
         while (!$feof(fd)) begin
             void'($fgets(line, fd));
@@ -131,7 +205,7 @@ module testbench;
 		fork
 			while(1)begin
                 uart_buffer = 256*8'b0;
-                wait (u_top.u_uart0.i_start_transmit == 1'b1);
+                @(posedge u_top.u_uart0.i_start_transmit);   // por flanco, igual que uart.v
                 size_msg = u_top.u_uart0.i_size_to_transmit;
                 cnt = 0;
                 while(cnt < size_msg)begin

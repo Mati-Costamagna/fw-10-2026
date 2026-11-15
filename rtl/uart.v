@@ -35,15 +35,21 @@ reg                transmiting, done;
 wire [NB_DATA-1:0] output_buffer [0:SIZE_BUFF_OUT-1] ;
 reg  [31:0]        current_output_index              ;
 
+// START se detecta por flanco: el FW lo pone en 1 y lo baja enseguida, pero la escritura que lo
+// baja tarda unos clocks en el bus. Por nivel, un mensaje corto (1 byte dura 1 clock) terminaba
+// antes de que START bajara y se volvia a transmitir.
+reg start_q;
+always @(posedge i_clk) start_q <= reset ? 1'b0 : i_start_transmit;
+wire start_edge = i_start_transmit && !start_q;
 
 // load incoming data
 always @(posedge i_clk) begin
     if(reset)begin
         transmiting             <= 1'b0   ;
-        done                    <= 1'b1   ;   
+        done                    <= 1'b1   ;
         current_output_index    <= 31'b0  ;
     end else begin
-        if(i_start_transmit && !transmiting)begin
+        if(start_edge && !transmiting)begin
             transmiting          <= 1'b1  ;
             current_output_index <= 32'b0 ;
             done                 <= 1'b0  ;  
@@ -85,8 +91,8 @@ always @(posedge i_clk) begin
         if(i_flush_data)begin
             current_input_index <= 32'b0 ;
         end else if(i_valid_input)begin
-            input_buffer[current_input_index] <= i_input_data                ;
             if( current_input_index < SIZE_BUFF_IN ) begin
+                input_buffer[current_input_index] <= i_input_data                ;
                 current_input_index               <= current_input_index + 32'b1 ;
             end
         end

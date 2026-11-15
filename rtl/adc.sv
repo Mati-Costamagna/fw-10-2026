@@ -9,7 +9,7 @@ module adc #(
     parameter        N_SAMPLES   = 32,   // Cantidad de muestras a tomar
     parameter        SIGNAL_TYPE = 0,    // 0 = Senoidal | 1 = Triangular | 2 = Diente de sierra
     parameter real   VREF        = 3.3,  // Tension maxima
-    parameter real   FRECUENCIA  = 1e6
+    parameter real   FRECUENCIA  = 300e3
 )( 
     input  wire                    i_clk,
     input  wire                    i_rst_n,
@@ -99,7 +99,7 @@ module adc #(
         if (!i_rst_n) begin
             div_cnt     <= i_clk_divider-1;
             sample_tick <= 1'b0;
-        end else if (posedge_start) begin
+        end else if (enter_capt) begin
             div_cnt     <= i_clk_divider-1;
             sample_tick <= 1'b0;
         end else begin
@@ -124,7 +124,7 @@ module adc #(
             acq_done  <= 1'b0;
             half_done <= 1'b0;
         end else begin
-            if(posedge_start) begin
+            if(enter_capt) begin
                 acq_done  <= 1'b0;
                 half_done <= 1'b0;
             end else begin
@@ -147,7 +147,9 @@ module adc #(
         if (!i_rst_n) begin
             samp_cnt <= 0;
         end else begin
-            if ((state==ST_CAPT) && sample_tick) begin
+            if (enter_capt) begin
+                samp_cnt <= 0;
+            end else if ((state==ST_CAPT) && sample_tick) begin
                 if (samp_cnt == N_SAMPLES) begin
                     samp_cnt <= 0;
                 end else begin

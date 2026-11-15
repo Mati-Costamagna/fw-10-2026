@@ -7,4 +7,5 @@ rtl/mem_arbitrator.v
 rtl/dma.v
 rtl/adc.sv
 rtl/uart.v
+rtl/uart_serial.v
 submodules/picorv32/picorv32.v

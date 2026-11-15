@@ -82,22 +82,28 @@ module top #() (
             // uart 0 
     wire    [31                                     :0]  uart0_transmision_done;
     wire    [31                                     :0]  uart0_data_available;
-    wire    [31 * REG_ARRAY_UART0_BUFF_IN_SIZE - 1  :0]  array_uart0_buff_in;
+    wire    [32 * REG_ARRAY_UART0_BUFF_IN_SIZE - 1  :0]  array_uart0_buff_in;
     wire    [31                                     :0]  uart0_index_in;
     wire    [31                                     :0]  uart0_start_transmit;
     wire    [31                                     :0]  uart0_size_to_transmit;
     wire    [31                                     :0]  uart0_data_flush;
-    wire    [31 * REG_ARRAY_UART0_BUFF_OUT_SIZE- 1  :0]  array_uart0_buff_out;
-        
-        // uart 1
-    wire    [31                                     :0]  uart1_transmision_done;
-    wire    [31                                     :0]  uart1_data_available;
-    wire    [31 * REG_ARRAY_UART1_BUFF_IN_SIZE - 1  :0]  array_uart1_buff_in;
-    wire    [31                                     :0]  uart1_index_in;
-    wire    [31                                     :0]  uart1_start_transmit;
-    wire    [31                                     :0]  uart1_size_to_transmit;
-    wire    [31                                     :0]  uart1_data_flush;
-    wire    [31 * REG_ARRAY_UART1_BUFF_OUT_SIZE- 1  :0]  array_uart1_buff_out;
+    wire    [32 * REG_ARRAY_UART0_BUFF_OUT_SIZE- 1  :0]  array_uart0_buff_out;
+
+        // uart 1 (serial): strobes derived from the bus handshake
+    wire        uart1_bus_wr   = to_mem_mux_valid & to_mem_mux_ready &  (|to_mem_mux_wstrb);
+    wire        uart1_bus_rd   = to_mem_mux_valid & to_mem_mux_ready & ~(|to_mem_mux_wstrb);
+    wire        uart1_wr_baud  = uart1_bus_wr & (to_mem_mux_addr == REG_UART1_BAUD_DIV);
+    wire        uart1_wr_ctrl  = uart1_bus_wr & (to_mem_mux_addr == REG_UART1_CTRL);
+    wire        uart1_wr_tx    = uart1_bus_wr & (to_mem_mux_addr == REG_UART1_TX_DATA);
+    wire        uart1_rd_rx    = uart1_bus_rd & (to_mem_mux_addr == REG_UART1_RX_DATA);
+    wire [31:0] uart1_status;
+    wire [31:0] uart1_rx_data;
+
+        // uart 1 serial lines: the testbench drives them hierarchically
+    reg         uart1_rx_line = 1'b1;   // host -> DUT
+    reg         uart1_cts_n   = 1'b0;   // host ready to receive (low)
+    wire        uart1_tx_line;          // DUT -> host
+    wire        uart1_rts_n;            // DUT ready to receive (low)
 
     mem_arbitrator #(
     ) u_mem_arbitrator(
@@ -198,14 +204,11 @@ module top #() (
         .o_reg_array_uart0_buff_out    (array_uart0_buff_out) ,
         
         // uart 1
-        .i_reg_uart1_transmision_done  (uart1_transmision_done) ,
-        .i_reg_uart1_data_available    (uart1_data_available) ,
-        .i_reg_array_uart1_buff_in     (array_uart1_buff_in) ,
-        .i_reg_uart1_index_in          (uart1_index_in) ,
-        .o_reg_uart1_start_transmit    (uart1_start_transmit) ,
-        .o_reg_uart1_size_to_transmit  (uart1_size_to_transmit) ,
-        .o_reg_uart1_data_flush        (uart1_data_flush) ,
-        .o_reg_array_uart1_buff_out    (array_uart1_buff_out) ,
+        .i_reg_uart1_status            (uart1_status) ,
+        .i_reg_uart1_rx_data           (uart1_rx_data) ,
+        .o_reg_uart1_baud_div          () ,
+        .o_reg_uart1_ctrl              () ,
+        .o_reg_uart1_tx_data           () ,
 
 
         .i_clk                    (i_clk         )         ,
@@ -248,35 +251,29 @@ module top #() (
     );
 
 
+    // UART1 is now serial (uart_serial.v). These two regs are no longer used by
+    // the DUT; they stay declared because rtl/testbench.sv still initializes them.
     reg  [31:0] fake_uart1_data_input         ;
     reg         fake_uart1_data_input_valid   ;
-    wire [31:0] fake_uart1_data_output        ;
-    wire        fake_uart1_data_output_valid  ;
-    uart #(
-        .NB_DATA        (32) ,
-        .SIZE_BUFF_IN   (REG_ARRAY_UART1_BUFF_IN_SIZE) ,
-        .SIZE_BUFF_OUT  (REG_ARRAY_UART1_BUFF_OUT_SIZE) 
+    uart_serial #(
+        .FIFO_DEPTH  (UART1_FIFO_DEPTH) ,
+        .DEFAULT_DIV (UART1_SIM_BAUD_DIV)
     ) u_uart1 (
-        .i_flush_data       (uart1_data_flush) ,
-        .o_data_available   (uart1_data_available) ,
-        .o_buff_in          (array_uart1_buff_in) ,
-        .o_index_in         (uart1_index_in) ,
+        .i_clk      (i_clk    ) ,
+        .i_rst_n    (i_resetn ) ,
 
-        .i_start_transmit   (uart1_start_transmit) ,
-        .i_size_to_transmit (uart1_size_to_transmit) ,
-        .i_buff_out         (array_uart1_buff_out) ,
-        .o_transmision_done (uart1_transmision_done) ,
+        .i_rx       (uart1_rx_line) ,
+        .o_tx       (uart1_tx_line) ,
+        .o_rts_n    (uart1_rts_n  ) ,
+        .i_cts_n    (uart1_cts_n  ) ,
 
-
-        // fake world 
-        .i_valid_input      (fake_uart1_data_input_valid) ,
-        .i_input_data       (fake_uart1_data_input) ,
-        .o_valid_output     (fake_uart1_data_output_valid) ,
-        .o_output_data      (fake_uart1_data_output) ,
-
-        .i_clk              (i_clk    ) ,
-        .i_rst_n            (i_resetn ) 
-
+        .i_wr_baud  (uart1_wr_baud) ,
+        .i_wr_ctrl  (uart1_wr_ctrl) ,
+        .i_wr_tx    (uart1_wr_tx  ) ,
+        .i_rd_rx    (uart1_rd_rx  ) ,
+        .i_wdata    (to_mem_mux_wdata) ,
+        .o_status   (uart1_status ) ,
+        .o_rx_data  (uart1_rx_data)
     );
 
 
