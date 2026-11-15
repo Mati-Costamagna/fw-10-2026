@@ -97,5 +97,59 @@ RESULT: PASS
 
 ### 1. ¿Qué política usaron para idx inválido y por qué?
 
-Si `idx >= LED_COUNT` (8), `led_on`, `led_off` y `led_toggle` retornan sin tocar `REG_LED`, y `led_get_status` devuelve 0.
+Si `idx >= LED_COUNT` (8), `led_on`, `led_off` y `led_toggle` retornan sin tocar `REG_LED`, y `led_get_status` devuelve 0. Lo elegi porque la consigna pide no modificar el registro con un `idx` invalido, los bits 8 a 31 de `REG_LED` no son LEDs, y chequear antes del shift evita `1u << idx` con `idx >= 32`, que en C es comportamiento indefinido.
+
+## Hito 3.a
+
+Driver de UART0 en `fw/drivers/inc/uart.h` y `fw/drivers/src/uart.c`. `uart_id_t` tiene un solo valor, `UART0`.
+
+| Funcion | Que hace |
+|---|---|
+| `uart_init(uart)` | Baja START, espera que termine la transmision en curso y descarta lo recibido |
+| `uart_write_byte(uart, c)` | Manda un byte y espera que termine |
+| `uart_write_str(uart, s)` | Manda `s` hasta el `'\0'`, en bloques de 256 si es mas largo |
+| `uart_rx_available(uart)` | 1 si llego al menos un byte desde el ultimo flush |
+| `uart_rx_count(uart)` | Cantidad de bytes recibidos |
+| `uart_read(uart, buf, max)` | Copia hasta `max` bytes recibidos en `buf` y devuelve cuantos copio |
+| `uart_rx_flush(uart)` | Descarta lo recibido |
+
+### Validacion
+
+`test_new_uart.c` escribia los registros de UART0 directamente, asi que lo reescribi para que use el driver. Hace lo mismo que antes (manda `hello Luigi!`, le pide al testbench que mande `HOLA!` con `REG_AUX_0 = 0x5ED5ED` y hace el eco) y agrega chequeos de bytes sueltos, uart invalido, un string de 300 caracteres, `uart_read` con `max` y flush.
+
+```bash
+make -C fw TARGET=test_new_uart
+make sim
+```
+
+```
+UART: [BL] arrancó
+UART: [BL] imagen del FW valida
+UART: [BL] saltando al FW, reset_handler=0x00001018
+UART: hello Luigi!
+UART: O
+UART: K
+UART: abcdefghijklmnopqrstuvwxyz ... qrstuv          (256 caracteres)
+UART: wxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmn
+UART: rx vacio despues de init
+UART:   OK
+UART: HOLA!
+UART: rx = HOLA!
+UART:   OK
+UART: read con max = 2
+UART:   OK
+UART: uart invalido
+UART:   OK
+UART: flush
+UART:   OK
+UART: -- test UART PASS --
+ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 000000ff
+RESULT: PASS
+```
+
+- `hello Luigi!` y `HOLA!` son las mismas lineas que da el test original.
+- Cada `uart_write_byte` es una transmision aparte (lineas `O` y `K`).
+- Lo que se manda con un `uart_id_t` invalido no aparece.
+- El string de 300 caracteres sale en dos transmisiones: 256 y 44.
+- Fuera de `uart.c`, `REG_UART0_*` solo aparece en `config.h` (las definiciones), en `print.c` (ver arriba) y en los tests de la catedra `test_drivers.c` y `test_dma.c`, que leen los registros para verificar. `test_new_uart.c` solo usa la constante `REG_ARRAY_UART0_BUFF_IN_SIZE`.
 

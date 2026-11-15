@@ -5,3 +5,4 @@
 # (los .h van en drivers/inc/ y los .c en drivers/src/)
 
 SRC += drivers/src/led.c
+SRC += drivers/src/uart.c
