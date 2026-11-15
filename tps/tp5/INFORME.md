@@ -129,7 +129,7 @@ UART: [BL] saltando al FW, reset_handler=0x00001018
 UART: hello Luigi!
 UART: O
 UART: K
-UART: abcdefghijklmnopqrstuvwxyz ... qrstuv          (256 caracteres)
+UART: abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuv
 UART: wxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmn
 UART: rx vacio despues de init
 UART:   OK
