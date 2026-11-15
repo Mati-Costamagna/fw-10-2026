@@ -3,10 +3,12 @@
 # un rato y manda 'S'; 'R' = manda 'R' flags (bit0 framing, bit1 overrun) y los limpia.
 baud 32
 gap 0
-timeout 300000
+# el bootloader tarda unos 300k clocks en pasarle el control al FW: mas margen solo para la 'K'
+timeout 600000
 
 # 1. la app anuncia que arranco
 < 4B
+timeout 300000
 
 # 2. eco de un patron conocido: 00..FF en cuatro bloques de 64 bytes
 > 45 40 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D

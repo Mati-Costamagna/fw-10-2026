@@ -1,32 +1,32 @@
 Archive member included to satisfy reference by file (symbol)
 
 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
-                              /tmp/cclsMbpM.o (__udivsi3)
+                              /tmp/ccRaBLjA.o (__udivsi3)
 
 Discarded input sections
 
- .text          0x0000000000000000        0x0 /tmp/ccR2aFiG.o
- .data          0x0000000000000000        0x0 /tmp/ccR2aFiG.o
- .bss           0x0000000000000000        0x0 /tmp/ccR2aFiG.o
- .text          0x0000000000000000        0x0 /tmp/cc8iPWUV.o
- .data          0x0000000000000000        0x0 /tmp/cc8iPWUV.o
- .bss           0x0000000000000000        0x0 /tmp/cc8iPWUV.o
- .text          0x0000000000000000        0x0 /tmp/cclsMbpM.o
- .data          0x0000000000000000        0x0 /tmp/cclsMbpM.o
- .bss           0x0000000000000000        0x0 /tmp/cclsMbpM.o
+ .text          0x0000000000000000        0x0 /tmp/ccgNOIeQ.o
+ .data          0x0000000000000000        0x0 /tmp/ccgNOIeQ.o
+ .bss           0x0000000000000000        0x0 /tmp/ccgNOIeQ.o
+ .text          0x0000000000000000        0x0 /tmp/cc28GS0H.o
+ .data          0x0000000000000000        0x0 /tmp/cc28GS0H.o
+ .bss           0x0000000000000000        0x0 /tmp/cc28GS0H.o
+ .text          0x0000000000000000        0x0 /tmp/ccRaBLjA.o
+ .data          0x0000000000000000        0x0 /tmp/ccRaBLjA.o
+ .bss           0x0000000000000000        0x0 /tmp/ccRaBLjA.o
  .text.print_chr
-                0x0000000000000000       0x30 /tmp/cclsMbpM.o
+                0x0000000000000000       0x30 /tmp/ccRaBLjA.o
  .text.print_dec
-                0x0000000000000000       0xa4 /tmp/cclsMbpM.o
+                0x0000000000000000       0xa4 /tmp/ccRaBLjA.o
  .rodata.print_hex.str1.4
-                0x0000000000000000       0x11 /tmp/cclsMbpM.o
+                0x0000000000000000       0x11 /tmp/ccRaBLjA.o
  .text.print_hex
-                0x0000000000000000       0x78 /tmp/cclsMbpM.o
+                0x0000000000000000       0x78 /tmp/ccRaBLjA.o
  .text.print_flush_buffer
-                0x0000000000000000        0x4 /tmp/cclsMbpM.o
- .text          0x0000000000000000        0x0 /tmp/cc8R9p3A.o
- .data          0x0000000000000000        0x0 /tmp/cc8R9p3A.o
- .bss           0x0000000000000000        0x0 /tmp/cc8R9p3A.o
+                0x0000000000000000        0x4 /tmp/ccRaBLjA.o
+ .text          0x0000000000000000        0x0 /tmp/cc93QjRT.o
+ .data          0x0000000000000000        0x0 /tmp/cc93QjRT.o
+ .bss           0x0000000000000000        0x0 /tmp/cc93QjRT.o
  .text          0x0000000000000000       0xb4 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
  .data          0x0000000000000000        0x0 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
  .bss           0x0000000000000000        0x0 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
@@ -49,47 +49,47 @@ RAM              0x0000000000020000 0x0000000000020000 xrw
 
 Linker script and memory map
 
-LOAD /tmp/ccR2aFiG.o
-LOAD /tmp/cc8iPWUV.o
-LOAD /tmp/cclsMbpM.o
-LOAD /tmp/cc8R9p3A.o
+LOAD /tmp/ccgNOIeQ.o
+LOAD /tmp/cc28GS0H.o
+LOAD /tmp/ccRaBLjA.o
+LOAD /tmp/cc93QjRT.o
 LOAD /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a
 
 .text           0x0000000000000000      0x484
  *(.vectors)
- .vectors       0x0000000000000000       0x14 /tmp/ccR2aFiG.o
+ .vectors       0x0000000000000000       0x14 /tmp/ccgNOIeQ.o
                 0x0000000000000000                _bl_vectors
  *(.text .text.*)
  .text.bl_reset_handler
-                0x0000000000000014       0x10 /tmp/ccR2aFiG.o
+                0x0000000000000014       0x10 /tmp/ccgNOIeQ.o
                 0x0000000000000014                bl_reset_handler
- .text.bl_jump  0x0000000000000024       0x10 /tmp/ccR2aFiG.o
+ .text.bl_jump  0x0000000000000024       0x10 /tmp/ccgNOIeQ.o
                 0x0000000000000024                bl_jump
- .text.bl_halt  0x0000000000000034       0x18 /tmp/ccR2aFiG.o
+ .text.bl_halt  0x0000000000000034       0x18 /tmp/ccgNOIeQ.o
                 0x0000000000000034                bl_unexpected
                 0x0000000000000044                bl_halt
- .text.bl_fail  0x000000000000004c       0x38 /tmp/cc8iPWUV.o
- .text.bl_main  0x0000000000000084      0x1b4 /tmp/cc8iPWUV.o
+ .text.bl_fail  0x000000000000004c       0x38 /tmp/cc28GS0H.o
+ .text.bl_main  0x0000000000000084      0x1b4 /tmp/cc28GS0H.o
                 0x0000000000000084                bl_main
  .text.uart0_send.part.0
-                0x0000000000000238       0x50 /tmp/cclsMbpM.o
+                0x0000000000000238       0x50 /tmp/ccRaBLjA.o
  .text.print_str
-                0x0000000000000288       0x30 /tmp/cclsMbpM.o
+                0x0000000000000288       0x30 /tmp/ccRaBLjA.o
                 0x0000000000000288                print_str
  .text.str_crc8
-                0x00000000000002b8       0x5c /tmp/cc8R9p3A.o
+                0x00000000000002b8       0x5c /tmp/cc93QjRT.o
                 0x00000000000002b8                str_crc8
  *(.rodata .rodata.* .srodata .srodata.*)
  .rodata.bl_main.str1.4
-                0x0000000000000314      0x16d /tmp/cc8iPWUV.o
+                0x0000000000000314      0x16d /tmp/cc28GS0H.o
                 0x0000000000000484                . = ALIGN (0x4)
  *fill*         0x0000000000000481        0x3 
 
 .rela.dyn       0x0000000000000484        0x0
  .rela.text.bl_reset_handler
-                0x0000000000000484        0x0 /tmp/ccR2aFiG.o
+                0x0000000000000484        0x0 /tmp/ccgNOIeQ.o
  .rela.text.bl_main
-                0x0000000000000484        0x0 /tmp/ccR2aFiG.o
+                0x0000000000000484        0x0 /tmp/ccgNOIeQ.o
 
 .data           0x0000000000020000        0x0
                 0x0000000000020000                _bl_sdata = .
@@ -115,69 +115,69 @@ OUTPUT(build/bl.elf elf32-littleriscv)
 .riscv.attributes
                 0x0000000000000000       0x1c
  .riscv.attributes
-                0x0000000000000000       0x1a /tmp/ccR2aFiG.o
+                0x0000000000000000       0x1a /tmp/ccgNOIeQ.o
  .riscv.attributes
-                0x000000000000001a       0x1c /tmp/cc8iPWUV.o
+                0x000000000000001a       0x1c /tmp/cc28GS0H.o
  .riscv.attributes
-                0x0000000000000036       0x1c /tmp/cclsMbpM.o
+                0x0000000000000036       0x1c /tmp/ccRaBLjA.o
  .riscv.attributes
-                0x0000000000000052       0x1c /tmp/cc8R9p3A.o
+                0x0000000000000052       0x1c /tmp/cc93QjRT.o
 
 .comment        0x0000000000000000        0xf
- .comment       0x0000000000000000        0xf /tmp/cc8iPWUV.o
+ .comment       0x0000000000000000        0xf /tmp/cc28GS0H.o
                                          0x10 (size before relaxing)
- .comment       0x000000000000000f       0x10 /tmp/cclsMbpM.o
- .comment       0x000000000000000f       0x10 /tmp/cc8R9p3A.o
+ .comment       0x000000000000000f       0x10 /tmp/ccRaBLjA.o
+ .comment       0x000000000000000f       0x10 /tmp/cc93QjRT.o
 
 .debug_line     0x0000000000000000      0xba7
- .debug_line    0x0000000000000000       0xcd /tmp/ccR2aFiG.o
- .debug_line    0x00000000000000cd      0x45c /tmp/cc8iPWUV.o
- .debug_line    0x0000000000000529      0x4e1 /tmp/cclsMbpM.o
- .debug_line    0x0000000000000a0a      0x19d /tmp/cc8R9p3A.o
+ .debug_line    0x0000000000000000       0xcd /tmp/ccgNOIeQ.o
+ .debug_line    0x00000000000000cd      0x45c /tmp/cc28GS0H.o
+ .debug_line    0x0000000000000529      0x4e1 /tmp/ccRaBLjA.o
+ .debug_line    0x0000000000000a0a      0x19d /tmp/cc93QjRT.o
 
 .debug_info     0x0000000000000000      0x8a2
- .debug_info    0x0000000000000000       0x22 /tmp/ccR2aFiG.o
- .debug_info    0x0000000000000022      0x440 /tmp/cc8iPWUV.o
- .debug_info    0x0000000000000462      0x32a /tmp/cclsMbpM.o
- .debug_info    0x000000000000078c      0x116 /tmp/cc8R9p3A.o
+ .debug_info    0x0000000000000000       0x22 /tmp/ccgNOIeQ.o
+ .debug_info    0x0000000000000022      0x440 /tmp/cc28GS0H.o
+ .debug_info    0x0000000000000462      0x32a /tmp/ccRaBLjA.o
+ .debug_info    0x000000000000078c      0x116 /tmp/cc93QjRT.o
 
 .debug_abbrev   0x0000000000000000      0x49a
- .debug_abbrev  0x0000000000000000       0x12 /tmp/ccR2aFiG.o
- .debug_abbrev  0x0000000000000012      0x204 /tmp/cc8iPWUV.o
- .debug_abbrev  0x0000000000000216      0x1da /tmp/cclsMbpM.o
- .debug_abbrev  0x00000000000003f0       0xaa /tmp/cc8R9p3A.o
+ .debug_abbrev  0x0000000000000000       0x12 /tmp/ccgNOIeQ.o
+ .debug_abbrev  0x0000000000000012      0x204 /tmp/cc28GS0H.o
+ .debug_abbrev  0x0000000000000216      0x1da /tmp/ccRaBLjA.o
+ .debug_abbrev  0x00000000000003f0       0xaa /tmp/cc93QjRT.o
 
 .debug_aranges  0x0000000000000000       0xc8
  .debug_aranges
-                0x0000000000000000       0x38 /tmp/ccR2aFiG.o
+                0x0000000000000000       0x38 /tmp/ccgNOIeQ.o
  .debug_aranges
-                0x0000000000000038       0x28 /tmp/cc8iPWUV.o
+                0x0000000000000038       0x28 /tmp/cc28GS0H.o
  .debug_aranges
-                0x0000000000000060       0x48 /tmp/cclsMbpM.o
+                0x0000000000000060       0x48 /tmp/ccRaBLjA.o
  .debug_aranges
-                0x00000000000000a8       0x20 /tmp/cc8R9p3A.o
+                0x00000000000000a8       0x20 /tmp/cc93QjRT.o
 
 .debug_str      0x0000000000000000      0x32f
- .debug_str     0x0000000000000000       0x54 /tmp/ccR2aFiG.o
- .debug_str     0x0000000000000054      0x247 /tmp/cc8iPWUV.o
+ .debug_str     0x0000000000000000       0x54 /tmp/ccgNOIeQ.o
+ .debug_str     0x0000000000000054      0x247 /tmp/cc28GS0H.o
                                         0x2b3 (size before relaxing)
- .debug_str     0x000000000000029b       0x6e /tmp/cclsMbpM.o
+ .debug_str     0x000000000000029b       0x6e /tmp/ccRaBLjA.o
                                         0x13f (size before relaxing)
- .debug_str     0x0000000000000309       0x26 /tmp/cc8R9p3A.o
+ .debug_str     0x0000000000000309       0x26 /tmp/cc93QjRT.o
                                         0x17a (size before relaxing)
 
 .debug_ranges   0x0000000000000000       0xe0
- .debug_ranges  0x0000000000000000       0x30 /tmp/ccR2aFiG.o
- .debug_ranges  0x0000000000000030       0x18 /tmp/cc8iPWUV.o
- .debug_ranges  0x0000000000000048       0x70 /tmp/cclsMbpM.o
- .debug_ranges  0x00000000000000b8       0x28 /tmp/cc8R9p3A.o
+ .debug_ranges  0x0000000000000000       0x30 /tmp/ccgNOIeQ.o
+ .debug_ranges  0x0000000000000030       0x18 /tmp/cc28GS0H.o
+ .debug_ranges  0x0000000000000048       0x70 /tmp/ccRaBLjA.o
+ .debug_ranges  0x00000000000000b8       0x28 /tmp/cc93QjRT.o
 
 .debug_loc      0x0000000000000000      0x511
- .debug_loc     0x0000000000000000      0x145 /tmp/cc8iPWUV.o
- .debug_loc     0x0000000000000145      0x2b3 /tmp/cclsMbpM.o
- .debug_loc     0x00000000000003f8      0x119 /tmp/cc8R9p3A.o
+ .debug_loc     0x0000000000000000      0x145 /tmp/cc28GS0H.o
+ .debug_loc     0x0000000000000145      0x2b3 /tmp/ccRaBLjA.o
+ .debug_loc     0x00000000000003f8      0x119 /tmp/cc93QjRT.o
 
 .debug_frame    0x0000000000000000      0x104
- .debug_frame   0x0000000000000000       0x4c /tmp/cc8iPWUV.o
- .debug_frame   0x000000000000004c       0x98 /tmp/cclsMbpM.o
- .debug_frame   0x00000000000000e4       0x20 /tmp/cc8R9p3A.o
+ .debug_frame   0x0000000000000000       0x4c /tmp/cc28GS0H.o
+ .debug_frame   0x000000000000004c       0x98 /tmp/ccRaBLjA.o
+ .debug_frame   0x00000000000000e4       0x20 /tmp/cc93QjRT.o

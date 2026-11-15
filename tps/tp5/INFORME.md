@@ -153,3 +153,61 @@ RESULT: PASS
 - El string de 300 caracteres sale en dos transmisiones: 256 y 44.
 - Fuera de `uart.c`, `REG_UART0_*` solo aparece en `config.h` (las definiciones), en `print.c` (ver arriba) y en los tests de la catedra `test_drivers.c` y `test_dma.c`, que leen los registros para verificar. `test_new_uart.c` solo usa la constante `REG_ARRAY_UART0_BUFF_IN_SIZE`.
 
+
+## Hito 3.b
+
+Driver de UART1 (serie 8N1, FIFOs RX y TX de 16 bytes) en `fw/drivers/src/uart1.c`. La interfaz `uart1.h` ya venia dada. Sume `drivers/src/uart1.c` a `fw/sources.mk`.
+
+| Funcion | Que hace |
+|---|---|
+| `uart1_init(baud_div)` | `REG_UART1_BAUD_DIV = baud_div` y `uart1_clear_errors()` |
+| `uart1_rx_level()` | `UART1_ST_RX_LEVEL(REG_UART1_STATUS)`, bits 15:8 |
+| `uart1_getc(&b)` | Lee `RX_DATA` una vez; si `VALID` (bit 8) esta en 1 guarda los bits 7:0 en `*b` y devuelve 1, si no devuelve 0 sin tocar `*b` |
+| `uart1_putc(b)` | Espera mientras `TX_FULL` y escribe `TX_DATA` |
+| `uart1_write(buf, n)` | `uart1_putc` de cada byte |
+| `uart1_tx_idle()` | Bit `TX_IDLE` del STATUS: FIFO TX vacio y ultimo byte ya enviado |
+| `uart1_errors()` | Pasa `FRAME_ERR` (bit 3) a `UART1_ERR_FRAME` (bit 0) y `OVERRUN` (bit 2) a `UART1_ERR_OVERRUN` (bit 1) |
+| `uart1_clear_errors()` | `REG_UART1_CTRL = (REG_UART1_CTRL & RTS) \| CLR_ERR` |
+
+### Errores encontrados
+
+**No existia `make test_uart_serial`:** el Makefile de la raiz solo tenia `fw`, `sim` y `wave`, y el host de UART1 del testbench solo actua si recibe `+UART1_SCRIPT=<archivo>`. Agregue la regla `test_%`: compila `fw/tests/test_<nombre>.c` (o `<nombre>.c` de `tests/` o `app/`), corre la simulacion y, si hay un `.txt` con el mismo nombre, se lo pasa como `+UART1_SCRIPT`. `VERBOSE=1` agrega `+VERBOSE`. No pasa `+NOWAVE`, asi que despues se puede usar `make wave`.
+
+### Validacion
+
+```bash
+make test_uart_serial
+```
+
+```
+UART: [BL] arrancó
+UART: [BL] imagen del FW valida
+UART: [BL] saltando al FW, reset_handler=0x00001018
+[ OK ] recibido: 4b 
+[ OK ] recibido: 32 bytes
+[ OK ] recibido: 32 bytes
+[ OK ] recibido: 32 bytes
+[ OK ] recibido: 32 bytes
+[ OK ] recibido: 32 bytes
+[ OK ] recibido: 32 bytes
+[ OK ] recibido: 32 bytes
+[ OK ] recibido: 32 bytes
+[ OK ] recibido: a5 5a 00 ff 5a a5 
+[ OK ] recibido: 52 01 
+[ OK ] recibido: 53 
+[ OK ] recibido: 52 02 
+[ OK ] recibido: 52 00 
+CHECK PASS (14/14)
+ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 00000000
+total clocks:               530576
+RESULT: PASS
+```
+
+- `4b`: el FW arranco y mando `K`.
+- Los ocho bloques de 32 bytes son el eco de `00`..`FF` (cuatro comandos `E` de 64 bytes), y `a5 5a 00 ff 5a a5` el de los bytes parecidos al protocolo.
+- `52 01`: el byte con el stop en 0 marco framing error. Con un stop malo el hardware no mete el byte en el FIFO RX, asi que no llega a la app.
+- `53` y `52 02`: los 40 bytes que llegaron mientras el FW no leia (el FIFO tiene 16) provocaron overrun. El framing error ya se habia limpiado con el `R` anterior.
+- `52 00`: los flags se limpiaron al leerlos.
+- En las ondas, `CTRL` se escribe `0x2` en `uart1_init` (RTS seguia en 0, como despues del reset) y `0x3` en cada `R`: `uart1_clear_errors()` no baja RTS.
+- Fuera de `uart1.c`, `REG_UART1_*` solo aparece en `config.h` y en `rts_high()` de `test_uart_serial.c` (de la catedra, que deja RTS en alto sin `uart1_set_rts()`).
+- `test_led` y `test_new_uart` siguen dando PASS con `uart1.c` en `sources.mk`.

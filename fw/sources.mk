@@ -6,3 +6,4 @@
 
 SRC += drivers/src/led.c
 SRC += drivers/src/uart.c
+SRC += drivers/src/uart1.c
