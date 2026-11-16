@@ -171,12 +171,14 @@ Driver de UART1 (serie 8N1, FIFOs RX y TX de 16 bytes) en `fw/drivers/src/uart1.
 
 ### Errores encontrados
 
-**No existia `make test_uart_serial`:** el Makefile de la raiz solo tenia `fw`, `sim` y `wave`, y el host de UART1 del testbench solo actua si recibe `+UART1_SCRIPT=<archivo>`. Agregue la regla `test_%`: compila `fw/tests/test_<nombre>.c` (o `<nombre>.c` de `tests/` o `app/`), corre la simulacion y, si hay un `.txt` con el mismo nombre, se lo pasa como `+UART1_SCRIPT`. `VERBOSE=1` agrega `+VERBOSE`. No pasa `+NOWAVE`, asi que despues se puede usar `make wave`.
+**No existe `make test_uart_serial`:** la consigna lo nombra, pero el Makefile de la raiz solo tiene `fw`, `sim` y `wave`. El host de UART1 del testbench solo actua si el simulador recibe `+UART1_SCRIPT=<archivo>`, y `make sim` corre `./obj_dir/Vtestbench` sin argumentos. Sin patron, `test_uart_serial.c` se queda esperando comandos en su `for (;;)` y la simulacion no termina. Sin agregar reglas al Makefile, compilo el FW con `make -C fw`, compilo el simulador con el mismo comando de Verilator que usa `make sim` y lo corro pasandole el patron. Como no paso `+NOWAVE`, se genera `wave.vcd` y despues se puede usar `make wave`. Con `+VERBOSE`, el host imprime cada byte que manda.
 
 ### Validacion
 
 ```bash
-make test_uart_serial
+make -C fw TARGET=test_uart_serial
+verilator --binary --trace -Wno-fatal -f filelist.f
+./obj_dir/Vtestbench +UART1_SCRIPT=fw/tests/test_uart_serial.txt
 ```
 
 ```
@@ -199,7 +201,7 @@ UART: [BL] saltando al FW, reset_handler=0x00001018
 [ OK ] recibido: 52 00 
 CHECK PASS (14/14)
 ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 00000000
-total clocks:               530576
+total clocks:               530612
 RESULT: PASS
 ```
 
@@ -211,3 +213,89 @@ RESULT: PASS
 - En las ondas, `CTRL` se escribe `0x2` en `uart1_init` (RTS seguia en 0, como despues del reset) y `0x3` en cada `R`: `uart1_clear_errors()` no baja RTS.
 - Fuera de `uart1.c`, `REG_UART1_*` solo aparece en `config.h` y en `rts_high()` de `test_uart_serial.c` (de la catedra, que deja RTS en alto sin `uart1_set_rts()`).
 - `test_led` y `test_new_uart` siguen dando PASS con `uart1.c` en `sources.mk`.
+
+## Hito 4
+
+Driver de DMA en `fw/drivers/inc/dma.h` y `fw/drivers/src/dma.c`. Sume `drivers/src/dma.c` a `fw/sources.mk`.
+
+| Funcion | Que hace |
+|---|---|
+| `dma_init()` | `REG_DMA_START = 0`, para que la primera copia genere el flanco 0->1 |
+| `dma_copy(src, dst, n_words)` | Valida `src` y `dst`, carga `SOURCE_ADDR`, `DEST_ADDR` y `SIZE`, escribe `START = 0` y `START = 1` y espera `DONE`. Devuelve `DMA_OK` (0), `DMA_ERR_ADDR` (-1) o `DMA_ERR_OVERLAP` (-2) |
+| `dma_is_done()` | `REG_DMA_DONE & 1u` |
+
+### Validacion
+
+`fw/tests/test_dma_driver.c` usa solo la API de `dma.h`. El destino tiene 4 palabras de guarda a cada lado con `0xA5A5A5A5`, para detectar escrituras fuera del rango. Imprime `OK` o `FALLA` por chequeo y deja `REG_FW_STATUS` en `0xFF` o `0xBAD`.
+
+```bash
+make -C fw TARGET=test_dma_driver
+make sim
+```
+
+```
+UART: [BL] arrancó
+UART: [BL] imagen del FW valida
+UART: [BL] saltando al FW, reset_handler=0x00001018
+UART: copia 64 palabras
+UART:   OK
+UART: dma_is_done
+UART:   OK
+UART: segunda copia (flanco START)
+UART:   OK
+UART: 1 palabra
+UART:   OK
+UART: n_words = 0
+UART:   OK
+UART: desde mem. de instrucciones
+UART:   OK
+UART: src NULL
+UART:   OK
+UART: dst NULL
+UART:   OK
+UART: src desalineado
+UART:   OK
+UART: dst desalineado
+UART:   OK
+UART: dst fuera del mapa
+UART:   OK
+UART: src fuera del mapa
+UART:   OK
+UART: cruza fin de RAM
+UART:   OK
+UART: n_words enorme
+UART:   OK
+UART: solape dst > src
+UART:   OK
+UART: solape dst < src
+UART:   OK
+UART: mismo buffer
+UART:   OK
+UART: contiguos sin solape
+UART:   OK
+UART: copia despues de errores
+UART:   OK
+UART: -- test DMA driver PASS --
+ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 000000ff
+total clocks:              1320807
+RESULT: PASS
+```
+
+- Las copias de 64, 7 y 1 palabra dejan el destino igual al origen y las guardas intactas. La segunda copia confirma que el flanco de `START` se genera en cada llamada.
+- `dma_is_done` da 1 despues de una copia.
+- `n_words = 0` devuelve `DMA_OK` y no toca el destino.
+- La copia desde la memoria de instrucciones (`0x1000`, el codigo del FW) coincide con lo que lee la CPU.
+- Las direcciones invalidas devuelven `DMA_ERR_ADDR` con el destino intacto, o sea que el DMA no arranco. Que la simulacion termine tambien lo muestra: si el DMA hubiera ido a `0x6_0000` o a `0x8000_0000`, se colgaba todo.
+- Los tres casos de solapamiento devuelven `DMA_ERR_OVERLAP` sin modificar `A`. Dos bloques contiguos no se solapan y se copian.
+- Despues de todos los errores, una copia de 64 palabras sigue andando.
+- `test_dma` (de la catedra) sigue dando PASS con `dma.c` compilado.
+- Fuera de `dma.c`, `REG_DMA_*` solo aparece en `config.h` (las definiciones) y en `test_dma.c` de la catedra, que prueba el hardware sin driver.
+
+### 1. ¿Qué pasa si dst y src se solapan? ¿Cómo lo documentaron?
+
+El DMA copia hacia adelante de a una palabra: lee la `i`, la escribe y recien despues lee la `i+1`.
+
+- Si `dst < src`, cada palabra se lee antes de que la pisen y la copia sale bien.
+- Si `dst > src`, se pisan palabras del origen que todavia no se copiaron y las primeras `(dst - src) / 4` palabras se repiten. Por ejemplo, con `src = &A[0]`, `dst = &A[4]` y `n_words = 16`, `A[4..19]` termina con `A[0..3]` repetido cuatro veces.
+
+El driver rechaza cualquier solapamiento, en las dos direcciones, con `DMA_ERR_OVERLAP` y sin arrancar el DMA. Rechazar tambien el caso `dst < src`, que funcionaria, deja una regla simple que no depende de como recorre la memoria el hardware. Los rangos se solapan si `s < d + bytes && d < s + bytes`.   
