@@ -2,7 +2,6 @@
 // - Printear señal
 // - Inicio de captura
 // - Captura continua
-#include <stdio.h>
 #include <stdint.h>
 
 

@@ -8,3 +8,4 @@ SRC += drivers/src/led.c
 SRC += drivers/src/uart.c
 SRC += drivers/src/uart1.c
 SRC += drivers/src/dma.c
+SRC += drivers/src/adc.c

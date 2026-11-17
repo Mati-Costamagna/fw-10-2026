@@ -11,7 +11,7 @@ Cree los archivos base de los cuatro drivers, vacios, en las carpetas que pide l
 | `dma.h` | `dma.c` |
 | `adc.h` | `adc.c` |
 
-- `uart1.h` y `uart1.c` ya venian de la catedra (hito 3.b).
+- `uart1.h` y `uart1.c` ya venian (hito 3.b).
 - Los drivers se suman a `fw/sources.mk` a medida que los implemento (el LED en el hito 2).
 - No hubo errores en este hito.
 
@@ -151,7 +151,7 @@ RESULT: PASS
 - Cada `uart_write_byte` es una transmision aparte (lineas `O` y `K`).
 - Lo que se manda con un `uart_id_t` invalido no aparece.
 - El string de 300 caracteres sale en dos transmisiones: 256 y 44.
-- Fuera de `uart.c`, `REG_UART0_*` solo aparece en `config.h` (las definiciones), en `print.c` (ver arriba) y en los tests de la catedra `test_drivers.c` y `test_dma.c`, que leen los registros para verificar. `test_new_uart.c` solo usa la constante `REG_ARRAY_UART0_BUFF_IN_SIZE`.
+- Fuera de `uart.c`, `REG_UART0_*` solo aparece en `config.h` (las definiciones), en `print.c` (ver arriba) y en los tests `test_drivers.c` y `test_dma.c`, que leen los registros para verificar. `test_new_uart.c` solo usa la constante `REG_ARRAY_UART0_BUFF_IN_SIZE`.
 
 
 ## Hito 3.b
@@ -211,7 +211,7 @@ RESULT: PASS
 - `53` y `52 02`: los 40 bytes que llegaron mientras el FW no leia (el FIFO tiene 16) provocaron overrun. El framing error ya se habia limpiado con el `R` anterior.
 - `52 00`: los flags se limpiaron al leerlos.
 - En las ondas, `CTRL` se escribe `0x2` en `uart1_init` (RTS seguia en 0, como despues del reset) y `0x3` en cada `R`: `uart1_clear_errors()` no baja RTS.
-- Fuera de `uart1.c`, `REG_UART1_*` solo aparece en `config.h` y en `rts_high()` de `test_uart_serial.c` (de la catedra, que deja RTS en alto sin `uart1_set_rts()`).
+- Fuera de `uart1.c`, `REG_UART1_*` solo aparece en `config.h` y en `rts_high()` de `test_uart_serial.c` (que deja RTS en alto sin `uart1_set_rts()`).
 - `test_led` y `test_new_uart` siguen dando PASS con `uart1.c` en `sources.mk`.
 
 ## Hito 4
@@ -288,8 +288,8 @@ RESULT: PASS
 - Las direcciones invalidas devuelven `DMA_ERR_ADDR` con el destino intacto, o sea que el DMA no arranco. Que la simulacion termine tambien lo muestra: si el DMA hubiera ido a `0x6_0000` o a `0x8000_0000`, se colgaba todo.
 - Los tres casos de solapamiento devuelven `DMA_ERR_OVERLAP` sin modificar `A`. Dos bloques contiguos no se solapan y se copian.
 - Despues de todos los errores, una copia de 64 palabras sigue andando.
-- `test_dma` (de la catedra) sigue dando PASS con `dma.c` compilado.
-- Fuera de `dma.c`, `REG_DMA_*` solo aparece en `config.h` (las definiciones) y en `test_dma.c` de la catedra, que prueba el hardware sin driver.
+- `test_dma` sigue dando PASS con `dma.c` compilado.
+- Fuera de `dma.c`, `REG_DMA_*` solo aparece en `config.h` (las definiciones) y en `test_dma.c`, que prueba el hardware sin driver.
 
 ### 1. ¿Qué pasa si dst y src se solapan? ¿Cómo lo documentaron?
 
@@ -299,3 +299,56 @@ El DMA copia hacia adelante de a una palabra: lee la `i`, la escribe y recien de
 - Si `dst > src`, se pisan palabras del origen que todavia no se copiaron y las primeras `(dst - src) / 4` palabras se repiten. Por ejemplo, con `src = &A[0]`, `dst = &A[4]` y `n_words = 16`, `A[4..19]` termina con `A[0..3]` repetido cuatro veces.
 
 El driver rechaza cualquier solapamiento, en las dos direcciones, con `DMA_ERR_OVERLAP` y sin arrancar el DMA. Rechazar tambien el caso `dst < src`, que funcionaria, deja una regla simple que no depende de como recorre la memoria el hardware. Los rangos se solapan si `s < d + bytes && d < s + bytes`.   
+
+## Hito 5
+
+Driver de ADC en `fw/drivers/inc/adc.h` y `fw/drivers/src/adc.c`. Sume `drivers/src/adc.c` a `fw/sources.mk`.
+
+| Funcion | Que hace |
+|---|---|
+| `adc_init(clk_div)` | Rechaza `clk_div = 0`, baja `START` y escribe `CLK_DIVIDER`. Devuelve `ADC_OK` (0), `ADC_ERR_PARAM` (-1) o `ADC_ERR_BUSY` (-2) si hay una captura en curso |
+| `adc_start(adc_mode)` | `ADC_MODE_SINGLE` (1) o `ADC_MODE_CIRCULAR` (2). Escribe `START = 0` y despues `1` (unica) o `3` (circular), y espera que baje el `DONE` de la captura anterior. Si `CLK_DIVIDER` esta en 0 pone 4 |
+| `adc_half_done()` | Espera que esten escritas las muestras 0..127 del lote. Devuelve 1, o 0 si no hay captura |
+| `adc_done()` | Espera el fin del lote (`DONE`). Devuelve 1, o 0 si no hay captura |
+| `adc_read(data, size)` | Hace una captura unica, espera `DONE` y copia `min(size, 256)` muestras. Devuelve cuantas copio, `ADC_ERR_PARAM` o `ADC_ERR_BUSY` |
+
+- El driver no tiene forma de parar el modo circular. Despues de `adc_start(ADC_MODE_CIRCULAR)`, `adc_init`, `adc_start` y `adc_read` devuelven `ADC_ERR_BUSY` hasta un reset, y como `adc_read` es la unica funcion que lee el buffer, las muestras del circular no se pueden leer.
+- Las muestras son de 32 bits (`DATA_WIDTH = NB_MEM_DATA`, `top.v:281`), asi que `adc_read` recibe `uint32_t *`. El ejemplo de la consigna usa `uint16_t samples[256]`, que no coincide con el prototipo y truncaria los codigos.
+
+### Validacion
+
+No hay un test propio del driver. `test_adc.c` prueba el hardware escribiendo los registros directamente, sin pasar por el driver. Con los divisores 4, 8 y 16 hace una captura unica y una circular y espera los cambios de `STATUS`.
+
+```bash
+make -C fw TARGET=test_adc
+make sim
+```
+
+```
+UART: [BL] arrancó
+UART: [BL] imagen del FW valida
+UART: [BL] saltando al FW, reset_handler=0x00001018
+UART: --half signal pass--
+UART: --full signal pass--
+UART: --start without repeticion pass--
+UART: --circular function pass--
+UART: ------TEST 1 PASS------
+UART: --half signal pass--
+UART: --full signal pass--
+UART: --start without repeticion pass--
+UART: --circular function pass--
+UART: ------TEST 2 PASS------
+UART: --half signal pass--
+UART: --full signal pass--
+UART: --start without repeticion pass--
+UART: --circular function pass--
+UART: ------TEST 3 PASS------
+ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 000000ff
+total clocks:               796526
+RESULT: PASS
+```
+
+- Con cada divisor, la captura unica pasa por `HALF` (`STATUS = 0b01`) y por `DONE` (`0b10`), y se queda en `DONE` sin arrancar otro lote. La circular pasa dos veces por `HALF` y `DONE`.
+- Las muestras no se imprimen: `check_adc_signal` las escribe en `REG_FW_REPORT`.
+- `test_led`, `test_new_uart`, `test_dma_driver` y `test_dma` siguen dando PASS con `adc.c` en `sources.mk`.
+- Fuera de `adc.c`, `REG_ADC_*` y `REG_ARRAY_ADC_BUFF` solo aparecen en `config.h` (las definiciones) y en `test_adc.c` y `test_drivers.c`.
