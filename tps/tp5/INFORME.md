@@ -352,3 +352,97 @@ RESULT: PASS
 - Las muestras no se imprimen: `check_adc_signal` las escribe en `REG_FW_REPORT`.
 - `test_led`, `test_new_uart`, `test_dma_driver` y `test_dma` siguen dando PASS con `adc.c` en `sources.mk`.
 - Fuera de `adc.c`, `REG_ADC_*` y `REG_ARRAY_ADC_BUFF` solo aparecen en `config.h` (las definiciones) y en `test_adc.c` y `test_drivers.c`.
+
+## Hito 6
+
+App de demo en `fw/app/main.c` (el `TARGET` por defecto). Usa los cuatro drivers solo por su API publica y no escribe ningun registro. Sume un modulo chico, `fw_status.h` / `fw_status.c`, para los registros que lee el testbench (`REG_FW_STATUS` y `REG_FW_REPORT`), y lo agregue a `fw/sources.mk`.
+
+| Bloque | Que hace | LED |
+|---|---|---|
+| init | `led_init`, `uart_init(UART0)`, `dma_init`, banner por UART0, chequea que los LEDs arranquen apagados y `adc_init(4)` | bit 0 |
+| DMA | Copia 64 palabras a un destino con 4 palabras de guarda a cada lado, chequea `dma_is_done`, el destino y las guardas, y que un solape y un `dst` desalineado se rechacen sin tocar memoria | bit 1 |
+| ADC | `adc_start(ADC_MODE_SINGLE)`, `adc_half_done` (prende el bit 2), `adc_done`; despues `adc_read` de 256 muestras, chequea que la senal varie y que `min < max` | bits 2 y 3 |
+| envio | Copia las muestras con `dma_copy` a un buffer de envio, chequea que coincidan y las manda por UART0 despues de `-- ADC data read --` | bit 4 |
+
+- Cada chequeo manda una linea `<bloque>: <chequeo>  OK` o `FALLA` por UART0. Si alguno falla se prende el bit 7 y la demo sigue con los demas bloques.
+- Al final escribe en `REG_FW_REPORT` un bit por bloque que fallo (bit 0 init, 1 DMA, 2 ADC, 3 envio) y deja `REG_FW_STATUS` en `0xFF` o `0xBAD` con `fw_status_end()`.
+- Los mensajes salen con `uart_write_str(UART0, ...)`, no con `print_str`, porque `print.c` escribe los registros de UART0 directamente.
+- El divisor del ADC se cambia al compilar: `make -C fw EXTRA_CFLAGS=-DDEMO_ADC_CLK_DIV=16`.
+
+### Errores encontrados
+
+**"LEDs apagados" fallaba despues de otro fallo:** en la primera version el chequeo de los LEDs iba despues de `adc_init`. Al probar el camino de falla con `clk_div = 0`, el `FALLA` de `adc_init` prendia el bit 7 y el chequeo siguiente veia `0x80` en vez de `0`. Lo movi antes de cualquier otro chequeo.
+
+### Validacion
+
+```bash
+make -C fw
+make sim
+```
+
+```
+UART: [BL] arrancó
+UART: [BL] imagen del FW valida
+UART: [BL] saltando al FW, reset_handler=0x00001018
+UART: tp5-drivers-demo v1.0.0
+UART: init: LEDs apagados  OK
+UART: init: adc_init(clk_div = 4)  OK
+LED: 0b00000001
+UART: DMA: dma_copy 64 palabras  OK
+UART: DMA: dma_is_done  OK
+UART: DMA: destino igual al origen y guardas intactas  OK
+UART: DMA: solape rechazado  OK
+UART: DMA: dst desalineado rechazado  OK
+LED: 0b00000011
+UART: ADC: adc_start(ADC_MODE_SINGLE)  OK
+UART: ADC: adc_half_done  OK
+LED: 0b00000111
+UART: ADC: adc_done  OK
+UART: ADC: adc_read 256 muestras  OK
+UART: ADC: la senal varia  OK
+UART: ADC: min = 1, max = 4294967295
+UART: ADC: min < max  OK
+LED: 0b00001111
+UART: DMA: muestras al buffer de envio  OK
+UART: DMA: buffer de envio igual a las muestras  OK
+UART: -- ADC data read --
+UART: 3205607557
+UART: 3061837714
+...                          (256 muestras)
+LED: 0b00011111
+UART: -- demo PASS --
+ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 000000ff
+total clocks:              5133250
+RESULT: PASS
+```
+
+- Los LEDs avanzan de a un bit por bloque, en el orden de los mensajes: `0x01`, `0x03`, `0x07` (mitad del lote del ADC), `0x0F` y `0x1F`. El bit 7 queda apagado.
+- `adc_half_done` vuelve antes que `adc_done`: el bit 2 se prende entre los dos mensajes.
+- `min = 1` y `max = 4294967295` (`0xFFFFFFFF`): el lote cubre la escala completa de `0..VREF`. Los valores cambian de una corrida a otra si cambia el codigo, porque el modelo del ADC genera la senoidal con `$realtime` y la fase depende de cuando arranca la captura.
+- `fw/tools/plot_adc.py` extrae las 256 muestras del log y da una senoidal de unos 3 periodos con `clk_div = 4`.
+
+Camino de falla, con un `adc_init` que tiene que fallar:
+
+```bash
+make -C fw EXTRA_CFLAGS=-DDEMO_ADC_CLK_DIV=0
+make sim
+```
+
+```
+UART: tp5-drivers-demo v1.0.0
+UART: init: LEDs apagados  OK
+UART: init: adc_init(clk_div = 0)  FALLA
+LED: 0b10000000
+...
+LED: 0b10011110
+UART: -- demo FAIL --
+ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 00000bad
+RESULT: FAIL
+```
+
+- `adc_init(0)` devuelve `ADC_ERR_PARAM`, se prende el bit 7 y el bit 0 queda apagado. Los demas bloques pasan (`adc_start` usa el divisor por defecto, 4) y la simulacion termina con `0xBAD`.
+
+Encapsulamiento:
+
+- `main.c` no incluye `includes.h` ni `config.h`, solo `led.h`, `uart.h`, `dma.h`, `adc.h` y `fw_status.h`. Ninguno de esos headers trae `config.h`, asi que un `REG_*` en `main.c` no compila.
+- `test_led`, `test_new_uart`, `test_dma_driver`, `test_adc`, `test_dma` y `test_uart_serial` siguen compilando con `fw_status.c` en `sources.mk`.
