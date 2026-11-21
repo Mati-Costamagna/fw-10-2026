@@ -1,58 +1,119 @@
 Archive member included to satisfy reference by file (symbol)
 
 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
-                              /tmp/ccpenzTZ.o (__udivsi3)
+                              /tmp/ccWn2Yy2.o (__udivsi3)
 
 Discarded input sections
 
- .text          0x0000000000000000        0x0 /tmp/cc7e4mqL.o
- .data          0x0000000000000000        0x0 /tmp/cc7e4mqL.o
- .bss           0x0000000000000000        0x0 /tmp/cc7e4mqL.o
- .data          0x0000000000000000        0x0 /tmp/ccpenzTZ.o
- .text          0x0000000000000000      0x1d4 /tmp/ccIr6kB3.o
- .data          0x0000000000000000        0x0 /tmp/ccIr6kB3.o
- .bss           0x0000000000000000        0x0 /tmp/ccIr6kB3.o
+ .text          0x0000000000000000        0x0 /tmp/ccktSaQc.o
+ .data          0x0000000000000000        0x0 /tmp/ccktSaQc.o
+ .bss           0x0000000000000000        0x0 /tmp/ccktSaQc.o
+ .text          0x0000000000000000        0x0 /tmp/ccgh6eIQ.o
+ .data          0x0000000000000000        0x0 /tmp/ccgh6eIQ.o
+ .bss           0x0000000000000000        0x0 /tmp/ccgh6eIQ.o
+ .text          0x0000000000000000      0x1d4 /tmp/ccWn2Yy2.o
+ .data          0x0000000000000000        0x0 /tmp/ccWn2Yy2.o
+ .bss           0x0000000000000000        0x0 /tmp/ccWn2Yy2.o
  .rodata.str1.4
-                0x0000000000000000       0x11 /tmp/ccIr6kB3.o
- .debug_info    0x0000000000000000      0x32a /tmp/ccIr6kB3.o
- .debug_abbrev  0x0000000000000000      0x1da /tmp/ccIr6kB3.o
- .debug_loc     0x0000000000000000      0x2b3 /tmp/ccIr6kB3.o
+                0x0000000000000000       0x11 /tmp/ccWn2Yy2.o
+ .debug_info    0x0000000000000000      0x32a /tmp/ccWn2Yy2.o
+ .debug_abbrev  0x0000000000000000      0x1da /tmp/ccWn2Yy2.o
+ .debug_loc     0x0000000000000000      0x2b3 /tmp/ccWn2Yy2.o
  .debug_aranges
-                0x0000000000000000       0x20 /tmp/ccIr6kB3.o
- .debug_ranges  0x0000000000000000       0x38 /tmp/ccIr6kB3.o
- .debug_line    0x0000000000000000      0x4aa /tmp/ccIr6kB3.o
- .debug_str     0x0000000000000000       0xf8 /tmp/ccIr6kB3.o
- .comment       0x0000000000000000       0x10 /tmp/ccIr6kB3.o
- .debug_frame   0x0000000000000000       0x98 /tmp/ccIr6kB3.o
+                0x0000000000000000       0x20 /tmp/ccWn2Yy2.o
+ .debug_ranges  0x0000000000000000       0x38 /tmp/ccWn2Yy2.o
+ .debug_line    0x0000000000000000      0x4aa /tmp/ccWn2Yy2.o
+ .debug_str     0x0000000000000000       0xf8 /tmp/ccWn2Yy2.o
+ .comment       0x0000000000000000       0x10 /tmp/ccWn2Yy2.o
+ .debug_frame   0x0000000000000000       0x98 /tmp/ccWn2Yy2.o
  .riscv.attributes
-                0x0000000000000000       0x1c /tmp/ccIr6kB3.o
- .data          0x0000000000000000        0x0 /tmp/cc6ye58P.o
- .bss           0x0000000000000000        0x0 /tmp/cc6ye58P.o
- .data          0x0000000000000000        0x0 /tmp/cccHNqx9.o
- .bss           0x0000000000000000        0x0 /tmp/cccHNqx9.o
- .data          0x0000000000000000        0x0 /tmp/ccUON0xq.o
- .bss           0x0000000000000000        0x0 /tmp/ccUON0xq.o
- .data          0x0000000000000000        0x0 /tmp/ccaaQTTZ.o
- .bss           0x0000000000000000        0x0 /tmp/ccaaQTTZ.o
- .data          0x0000000000000000        0x0 /tmp/cctnv6SK.o
- .bss           0x0000000000000000        0x0 /tmp/cctnv6SK.o
- .text          0x0000000000000000       0xe8 /tmp/ccIvLDW4.o
- .data          0x0000000000000000        0x0 /tmp/ccIvLDW4.o
- .bss           0x0000000000000000        0x0 /tmp/ccIvLDW4.o
- .debug_info    0x0000000000000000      0x25f /tmp/ccIvLDW4.o
- .debug_abbrev  0x0000000000000000      0x18f /tmp/ccIvLDW4.o
- .debug_loc     0x0000000000000000      0x12d /tmp/ccIvLDW4.o
+                0x0000000000000000       0x1c /tmp/ccWn2Yy2.o
+ .text          0x0000000000000000      0x244 /tmp/ccieratS.o
+ .data          0x0000000000000000        0x0 /tmp/ccieratS.o
+ .bss           0x0000000000000000        0x0 /tmp/ccieratS.o
+ .sbss          0x0000000000000000        0x1 /tmp/ccieratS.o
+ .debug_info    0x0000000000000000      0x29b /tmp/ccieratS.o
+ .debug_abbrev  0x0000000000000000      0x1cf /tmp/ccieratS.o
+ .debug_loc     0x0000000000000000      0x196 /tmp/ccieratS.o
  .debug_aranges
-                0x0000000000000000       0x20 /tmp/ccIvLDW4.o
- .debug_ranges  0x0000000000000000       0x18 /tmp/ccIvLDW4.o
- .debug_line    0x0000000000000000      0x379 /tmp/ccIvLDW4.o
- .debug_str     0x0000000000000000      0x197 /tmp/ccIvLDW4.o
- .comment       0x0000000000000000       0x10 /tmp/ccIvLDW4.o
- .debug_frame   0x0000000000000000       0xa0 /tmp/ccIvLDW4.o
+                0x0000000000000000       0x20 /tmp/ccieratS.o
+ .debug_ranges  0x0000000000000000       0x58 /tmp/ccieratS.o
+ .debug_line    0x0000000000000000      0x5ed /tmp/ccieratS.o
+ .debug_str     0x0000000000000000      0x16e /tmp/ccieratS.o
+ .comment       0x0000000000000000       0x10 /tmp/ccieratS.o
+ .debug_frame   0x0000000000000000       0x88 /tmp/ccieratS.o
  .riscv.attributes
-                0x0000000000000000       0x1c /tmp/ccIvLDW4.o
+                0x0000000000000000       0x1c /tmp/ccieratS.o
+ .text          0x0000000000000000      0x154 /tmp/ccZpqM8s.o
+ .data          0x0000000000000000        0x0 /tmp/ccZpqM8s.o
+ .bss           0x0000000000000000        0x0 /tmp/ccZpqM8s.o
+ .debug_info    0x0000000000000000      0x2db /tmp/ccZpqM8s.o
+ .debug_abbrev  0x0000000000000000      0x19b /tmp/ccZpqM8s.o
+ .debug_loc     0x0000000000000000      0x457 /tmp/ccZpqM8s.o
+ .debug_aranges
+                0x0000000000000000       0x20 /tmp/ccZpqM8s.o
+ .debug_ranges  0x0000000000000000       0x48 /tmp/ccZpqM8s.o
+ .debug_line    0x0000000000000000      0x339 /tmp/ccZpqM8s.o
+ .debug_str     0x0000000000000000      0x158 /tmp/ccZpqM8s.o
+ .comment       0x0000000000000000       0x10 /tmp/ccZpqM8s.o
+ .debug_frame   0x0000000000000000       0x80 /tmp/ccZpqM8s.o
+ .riscv.attributes
+                0x0000000000000000       0x1c /tmp/ccZpqM8s.o
+ .text          0x0000000000000000       0x38 /tmp/ccgK5j8u.o
+ .data          0x0000000000000000        0x0 /tmp/ccgK5j8u.o
+ .bss           0x0000000000000000        0x0 /tmp/ccgK5j8u.o
+ .debug_info    0x0000000000000000       0xd3 /tmp/ccgK5j8u.o
+ .debug_abbrev  0x0000000000000000       0x91 /tmp/ccgK5j8u.o
+ .debug_aranges
+                0x0000000000000000       0x20 /tmp/ccgK5j8u.o
+ .debug_line    0x0000000000000000      0x103 /tmp/ccgK5j8u.o
+ .debug_str     0x0000000000000000      0x141 /tmp/ccgK5j8u.o
+ .comment       0x0000000000000000       0x10 /tmp/ccgK5j8u.o
+ .debug_frame   0x0000000000000000       0x40 /tmp/ccgK5j8u.o
+ .riscv.attributes
+                0x0000000000000000       0x1c /tmp/ccgK5j8u.o
+ .text          0x0000000000000000       0xcc /tmp/ccsFL3tJ.o
+ .data          0x0000000000000000        0x0 /tmp/ccsFL3tJ.o
+ .bss           0x0000000000000000        0x0 /tmp/ccsFL3tJ.o
+ .debug_info    0x0000000000000000      0x196 /tmp/ccsFL3tJ.o
+ .debug_abbrev  0x0000000000000000       0xed /tmp/ccsFL3tJ.o
+ .debug_loc     0x0000000000000000       0x9d /tmp/ccsFL3tJ.o
+ .debug_aranges
+                0x0000000000000000       0x20 /tmp/ccsFL3tJ.o
+ .debug_line    0x0000000000000000      0x227 /tmp/ccsFL3tJ.o
+ .debug_str     0x0000000000000000      0x16f /tmp/ccsFL3tJ.o
+ .comment       0x0000000000000000       0x10 /tmp/ccsFL3tJ.o
+ .debug_frame   0x0000000000000000       0x90 /tmp/ccsFL3tJ.o
+ .riscv.attributes
+                0x0000000000000000       0x1c /tmp/ccsFL3tJ.o
+ .text          0x0000000000000000      0x158 /tmp/cchwNUA2.o
+ .data          0x0000000000000000        0x0 /tmp/cchwNUA2.o
+ .bss           0x0000000000000000        0x0 /tmp/cchwNUA2.o
+ .debug_info    0x0000000000000000      0x1fb /tmp/cchwNUA2.o
+ .debug_abbrev  0x0000000000000000      0x15c /tmp/cchwNUA2.o
+ .debug_loc     0x0000000000000000       0xf2 /tmp/cchwNUA2.o
+ .debug_aranges
+                0x0000000000000000       0x20 /tmp/cchwNUA2.o
+ .debug_ranges  0x0000000000000000       0x18 /tmp/cchwNUA2.o
+ .debug_line    0x0000000000000000      0x4c0 /tmp/cchwNUA2.o
+ .debug_str     0x0000000000000000      0x180 /tmp/cchwNUA2.o
+ .comment       0x0000000000000000       0x10 /tmp/cchwNUA2.o
+ .debug_frame   0x0000000000000000       0x80 /tmp/cchwNUA2.o
+ .riscv.attributes
+                0x0000000000000000       0x1c /tmp/cchwNUA2.o
+ .data          0x0000000000000000        0x0 /tmp/ccPRl2X4.o
+ .bss           0x0000000000000000        0x0 /tmp/ccPRl2X4.o
+ .text          0x0000000000000000       0xb4 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
  .data          0x0000000000000000        0x0 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
  .bss           0x0000000000000000        0x0 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_line    0x0000000000000000      0x162 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_info    0x0000000000000000       0x26 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_abbrev  0x0000000000000000       0x14 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_aranges
+                0x0000000000000000       0x20 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+ .debug_str     0x0000000000000000       0xa9 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+ .riscv.attributes
+                0x0000000000000000       0x1a /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
 
 Memory Configuration
 
@@ -64,109 +125,72 @@ RAM              0x0000000000020000 0x0000000000020000 xrw
 
 Linker script and memory map
 
-LOAD /tmp/cc7e4mqL.o
-LOAD /tmp/ccpenzTZ.o
-LOAD /tmp/ccIr6kB3.o
-LOAD /tmp/cc6ye58P.o
-LOAD /tmp/cccHNqx9.o
-LOAD /tmp/ccUON0xq.o
-LOAD /tmp/ccaaQTTZ.o
-LOAD /tmp/cctnv6SK.o
-LOAD /tmp/ccIvLDW4.o
+LOAD /tmp/ccktSaQc.o
+LOAD /tmp/ccgh6eIQ.o
+LOAD /tmp/ccWn2Yy2.o
+LOAD /tmp/ccieratS.o
+LOAD /tmp/ccZpqM8s.o
+LOAD /tmp/ccgK5j8u.o
+LOAD /tmp/ccsFL3tJ.o
+LOAD /tmp/cchwNUA2.o
+LOAD /tmp/ccPRl2X4.o
 LOAD /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a
                 0x0000000000001000                __min_stack_size = 0x1000
 
-.text           0x0000000000001000     0x11c8
+.text           0x0000000000001000      0x19c
                 0x0000000000001000                __fw_start = .
  *(.fw_header)
- .fw_header     0x0000000000001000       0x18 /tmp/cc7e4mqL.o
+ .fw_header     0x0000000000001000       0x18 /tmp/ccktSaQc.o
                 0x0000000000001000                __fw_header
  *(.text.Reset_Handler)
  .text.Reset_Handler
-                0x0000000000001018       0x78 /tmp/cc7e4mqL.o
+                0x0000000000001018       0x78 /tmp/ccktSaQc.o
                 0x0000000000001018                Reset_Handler
  *(.text .text.*)
- .text          0x0000000000001090      0x1a0 /tmp/ccpenzTZ.o
- .text.startup  0x0000000000001230      0x6a0 /tmp/ccpenzTZ.o
-                0x0000000000001230                main
- .text          0x00000000000018d0      0x258 /tmp/cc6ye58P.o
-                0x00000000000018d0                adc_init
-                0x0000000000001934                adc_start
-                0x00000000000019cc                adc_half_done
-                0x0000000000001a44                adc_done
-                0x0000000000001a6c                adc_read
- .text          0x0000000000001b28      0x14c /tmp/cccHNqx9.o
-                0x0000000000001ba8                dma_init
-                0x0000000000001bb4                dma_copy
-                0x0000000000001c64                dma_is_done
- .text          0x0000000000001c74       0x38 /tmp/ccUON0xq.o
-                0x0000000000001c74                fw_status_clear
-                0x0000000000001c84                fw_status_report
-                0x0000000000001c90                fw_status_end
- .text          0x0000000000001cac       0xcc /tmp/ccaaQTTZ.o
-                0x0000000000001cac                led_init
-                0x0000000000001cb8                led_on
-                0x0000000000001cdc                led_off
-                0x0000000000001d04                led_toggle
-                0x0000000000001d28                led_write
-                0x0000000000001d34                led_set_mask
-                0x0000000000001d44                led_get_mask
-                0x0000000000001d54                led_get_status
- .text          0x0000000000001d78      0x184 /tmp/cctnv6SK.o
-                0x0000000000001d78                uart_init
-                0x0000000000001da4                uart_write_byte
-                0x0000000000001dd8                uart_write_str
-                0x0000000000001e4c                uart_rx_available
-                0x0000000000001e68                uart_rx_count
-                0x0000000000001e80                uart_read
-                0x0000000000001ee4                uart_rx_flush
- .text          0x0000000000001efc       0xb4 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
-                0x0000000000001efc                __divsi3
-                0x0000000000001f04                __udivsi3
-                0x0000000000001f4c                __umodsi3
-                0x0000000000001f80                __modsi3
+ .text.startup  0x0000000000001090       0x24 /tmp/ccgh6eIQ.o
+                0x0000000000001090                main
+ .text          0x00000000000010b4       0xe8 /tmp/ccPRl2X4.o
+                0x00000000000010b4                uart1_init
+                0x00000000000010d0                uart1_rx_level
+                0x00000000000010e4                uart1_getc
+                0x0000000000001108                uart1_putc
+                0x0000000000001120                uart1_write
+                0x000000000000114c                uart1_tx_idle
+                0x0000000000001160                uart1_errors
+                0x0000000000001180                uart1_clear_errors
+                0x0000000000001198                uart1_set_rts
  *(.rodata .rodata.*)
- .rodata.str1.4
-                0x0000000000001fb0      0x1fc /tmp/ccpenzTZ.o
- .rodata        0x00000000000021ac       0x11 /tmp/ccpenzTZ.o
  *(.srodata .srodata.*)
- *fill*         0x00000000000021bd        0x3 
- .srodata       0x00000000000021c0        0x6 /tmp/ccpenzTZ.o
-                0x00000000000021c8                . = ALIGN (0x4)
- *fill*         0x00000000000021c6        0x2 
+                0x000000000000119c                . = ALIGN (0x4)
 
-.rela.dyn       0x00000000000021c8        0x0
+.rela.dyn       0x000000000000119c        0x0
  .rela.fw_header
-                0x00000000000021c8        0x0 /tmp/cc7e4mqL.o
+                0x000000000000119c        0x0 /tmp/ccktSaQc.o
  .rela.text.Reset_Handler
-                0x00000000000021c8        0x0 /tmp/cc7e4mqL.o
+                0x000000000000119c        0x0 /tmp/ccktSaQc.o
 
-.data           0x0000000000020000        0x0 load address 0x00000000000021c8
+.data           0x0000000000020000        0x0 load address 0x000000000000119c
                 0x0000000000020000                . = ALIGN (0x4)
                 0x0000000000020000                _sdata = .
  *(.data .data.*)
  *(.sdata .sdata.*)
                 0x0000000000020000                . = ALIGN (0x4)
                 0x0000000000020000                _edata = .
-                0x00000000000021c8                _sidata = LOADADDR (.data)
+                0x000000000000119c                _sidata = LOADADDR (.data)
 
-.bss            0x0000000000020000      0xa28 load address 0x00000000000021c8
+.bss            0x0000000000020000        0x0 load address 0x000000000000119c
                 0x0000000000020000                . = ALIGN (0x4)
                 0x0000000000020000                _sbss = .
  *(.sbss .sbss.*)
- .sbss          0x0000000000020000        0x4 /tmp/ccpenzTZ.o
- .sbss          0x0000000000020004        0x1 /tmp/cc6ye58P.o
  *(.bss .bss.*)
- *fill*         0x0000000000020005        0x3 
- .bss           0x0000000000020008      0xa20 /tmp/ccpenzTZ.o
  *(COMMON)
-                0x0000000000020a28                . = ALIGN (0x4)
-                0x0000000000020a28                _ebss = .
+                0x0000000000020000                . = ALIGN (0x4)
+                0x0000000000020000                _ebss = .
 
 /DISCARD/
  *(.eh_frame .eh_frame_hdr)
-                0x00000000000021c8                __fw_end = (_sidata + (_edata - _sdata))
-                0x00000000000011c8                __fw_size = (__fw_end - __fw_start)
+                0x000000000000119c                __fw_end = (_sidata + (_edata - _sdata))
+                0x000000000000019c                __fw_size = (__fw_end - __fw_start)
                 0x0000000000040000                _stack_top = (ORIGIN (RAM) + LENGTH (RAM))
                 0x0000000000000001                ASSERT ((__fw_start == ORIGIN (APP_ROM)), app.ld: el header del FW (.fw_header) no quedo al inicio de APP_ROM)
                 0x0000000000000001                ASSERT (((_stack_top % 0x10) == 0x0), app.ld: _stack_top tiene que estar alineado a 16 (ABI RISC-V))
@@ -176,113 +200,54 @@ OUTPUT(build/app.elf elf32-littleriscv)
 .riscv.attributes
                 0x0000000000000000       0x1c
  .riscv.attributes
-                0x0000000000000000       0x1a /tmp/cc7e4mqL.o
+                0x0000000000000000       0x1a /tmp/ccktSaQc.o
  .riscv.attributes
-                0x000000000000001a       0x1c /tmp/ccpenzTZ.o
+                0x000000000000001a       0x1c /tmp/ccgh6eIQ.o
  .riscv.attributes
-                0x0000000000000036       0x1c /tmp/cc6ye58P.o
- .riscv.attributes
-                0x0000000000000052       0x1c /tmp/cccHNqx9.o
- .riscv.attributes
-                0x000000000000006e       0x1c /tmp/ccUON0xq.o
- .riscv.attributes
-                0x000000000000008a       0x1c /tmp/ccaaQTTZ.o
- .riscv.attributes
-                0x00000000000000a6       0x1c /tmp/cctnv6SK.o
- .riscv.attributes
-                0x00000000000000c2       0x1a /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+                0x0000000000000036       0x1c /tmp/ccPRl2X4.o
 
 .comment        0x0000000000000000        0xf
- .comment       0x0000000000000000        0xf /tmp/ccpenzTZ.o
+ .comment       0x0000000000000000        0xf /tmp/ccgh6eIQ.o
                                          0x10 (size before relaxing)
- .comment       0x000000000000000f       0x10 /tmp/cc6ye58P.o
- .comment       0x000000000000000f       0x10 /tmp/cccHNqx9.o
- .comment       0x000000000000000f       0x10 /tmp/ccUON0xq.o
- .comment       0x000000000000000f       0x10 /tmp/ccaaQTTZ.o
- .comment       0x000000000000000f       0x10 /tmp/cctnv6SK.o
+ .comment       0x000000000000000f       0x10 /tmp/ccPRl2X4.o
 
-.debug_line     0x0000000000000000     0x2253
- .debug_line    0x0000000000000000       0xd3 /tmp/cc7e4mqL.o
- .debug_line    0x00000000000000d3      0xe3f /tmp/ccpenzTZ.o
- .debug_line    0x0000000000000f12      0x609 /tmp/cc6ye58P.o
- .debug_line    0x000000000000151b      0x339 /tmp/cccHNqx9.o
- .debug_line    0x0000000000001854      0x103 /tmp/ccUON0xq.o
- .debug_line    0x0000000000001957      0x227 /tmp/ccaaQTTZ.o
- .debug_line    0x0000000000001b7e      0x573 /tmp/cctnv6SK.o
- .debug_line    0x00000000000020f1      0x162 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+.debug_line     0x0000000000000000      0x528
+ .debug_line    0x0000000000000000       0xd3 /tmp/ccktSaQc.o
+ .debug_line    0x00000000000000d3       0xdc /tmp/ccgh6eIQ.o
+ .debug_line    0x00000000000001af      0x379 /tmp/ccPRl2X4.o
 
-.debug_info     0x0000000000000000     0x17fd
- .debug_info    0x0000000000000000       0x26 /tmp/cc7e4mqL.o
- .debug_info    0x0000000000000026      0xd0e /tmp/ccpenzTZ.o
- .debug_info    0x0000000000000d34      0x2b5 /tmp/cc6ye58P.o
- .debug_info    0x0000000000000fe9      0x2db /tmp/cccHNqx9.o
- .debug_info    0x00000000000012c4       0xd3 /tmp/ccUON0xq.o
- .debug_info    0x0000000000001397      0x196 /tmp/ccaaQTTZ.o
- .debug_info    0x000000000000152d      0x2aa /tmp/cctnv6SK.o
- .debug_info    0x00000000000017d7       0x26 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+.debug_info     0x0000000000000000      0x343
+ .debug_info    0x0000000000000000       0x26 /tmp/ccktSaQc.o
+ .debug_info    0x0000000000000026       0xbe /tmp/ccgh6eIQ.o
+ .debug_info    0x00000000000000e4      0x25f /tmp/ccPRl2X4.o
 
-.debug_abbrev   0x0000000000000000      0x8e4
- .debug_abbrev  0x0000000000000000       0x14 /tmp/cc7e4mqL.o
- .debug_abbrev  0x0000000000000014      0x237 /tmp/ccpenzTZ.o
- .debug_abbrev  0x000000000000024b      0x1ee /tmp/cc6ye58P.o
- .debug_abbrev  0x0000000000000439      0x19b /tmp/cccHNqx9.o
- .debug_abbrev  0x00000000000005d4       0x91 /tmp/ccUON0xq.o
- .debug_abbrev  0x0000000000000665       0xed /tmp/ccaaQTTZ.o
- .debug_abbrev  0x0000000000000752      0x17e /tmp/cctnv6SK.o
- .debug_abbrev  0x00000000000008d0       0x14 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+.debug_abbrev   0x0000000000000000      0x220
+ .debug_abbrev  0x0000000000000000       0x14 /tmp/ccktSaQc.o
+ .debug_abbrev  0x0000000000000014       0x7d /tmp/ccgh6eIQ.o
+ .debug_abbrev  0x0000000000000091      0x18f /tmp/ccPRl2X4.o
 
-.debug_aranges  0x0000000000000000      0x108
+.debug_aranges  0x0000000000000000       0x60
  .debug_aranges
-                0x0000000000000000       0x20 /tmp/cc7e4mqL.o
+                0x0000000000000000       0x20 /tmp/ccktSaQc.o
  .debug_aranges
-                0x0000000000000020       0x28 /tmp/ccpenzTZ.o
+                0x0000000000000020       0x20 /tmp/ccgh6eIQ.o
  .debug_aranges
-                0x0000000000000048       0x20 /tmp/cc6ye58P.o
- .debug_aranges
-                0x0000000000000068       0x20 /tmp/cccHNqx9.o
- .debug_aranges
-                0x0000000000000088       0x20 /tmp/ccUON0xq.o
- .debug_aranges
-                0x00000000000000a8       0x20 /tmp/ccaaQTTZ.o
- .debug_aranges
-                0x00000000000000c8       0x20 /tmp/cctnv6SK.o
- .debug_aranges
-                0x00000000000000e8       0x20 /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
+                0x0000000000000040       0x20 /tmp/ccPRl2X4.o
 
-.debug_str      0x0000000000000000      0x46b
- .debug_str     0x0000000000000000       0x50 /tmp/cc7e4mqL.o
- .debug_str     0x0000000000000050      0x227 /tmp/ccpenzTZ.o
-                                        0x28f (size before relaxing)
- .debug_str     0x0000000000000277       0x3a /tmp/cc6ye58P.o
-                                        0x174 (size before relaxing)
- .debug_str     0x00000000000002b1       0x41 /tmp/cccHNqx9.o
-                                        0x158 (size before relaxing)
- .debug_str     0x00000000000002f2       0x1e /tmp/ccUON0xq.o
-                                        0x141 (size before relaxing)
- .debug_str     0x0000000000000310       0x4b /tmp/ccaaQTTZ.o
-                                        0x16f (size before relaxing)
- .debug_str     0x000000000000035b       0x75 /tmp/cctnv6SK.o
-                                        0x195 (size before relaxing)
- .debug_str     0x00000000000003d0       0x9b /usr/lib/gcc/riscv64-unknown-elf/10.2.0/rv32i/ilp32/libgcc.a(div.o)
-                                         0xa9 (size before relaxing)
+.debug_str      0x0000000000000000      0x1a1
+ .debug_str     0x0000000000000000       0x50 /tmp/ccktSaQc.o
+ .debug_str     0x0000000000000050       0xbe /tmp/ccgh6eIQ.o
+                                        0x11b (size before relaxing)
+ .debug_str     0x000000000000010e       0x93 /tmp/ccPRl2X4.o
+                                        0x197 (size before relaxing)
 
-.debug_loc      0x0000000000000000     0x121a
- .debug_loc     0x0000000000000000      0x8c7 /tmp/ccpenzTZ.o
- .debug_loc     0x00000000000008c7      0x257 /tmp/cc6ye58P.o
- .debug_loc     0x0000000000000b1e      0x457 /tmp/cccHNqx9.o
- .debug_loc     0x0000000000000f75       0x9d /tmp/ccaaQTTZ.o
- .debug_loc     0x0000000000001012      0x208 /tmp/cctnv6SK.o
+.debug_ranges   0x0000000000000000       0x28
+ .debug_ranges  0x0000000000000000       0x10 /tmp/ccgh6eIQ.o
+ .debug_ranges  0x0000000000000010       0x18 /tmp/ccPRl2X4.o
 
-.debug_ranges   0x0000000000000000      0x350
- .debug_ranges  0x0000000000000000      0x298 /tmp/ccpenzTZ.o
- .debug_ranges  0x0000000000000298       0x58 /tmp/cc6ye58P.o
- .debug_ranges  0x00000000000002f0       0x48 /tmp/cccHNqx9.o
- .debug_ranges  0x0000000000000338       0x18 /tmp/cctnv6SK.o
+.debug_frame    0x0000000000000000       0xc8
+ .debug_frame   0x0000000000000000       0x28 /tmp/ccgh6eIQ.o
+ .debug_frame   0x0000000000000028       0xa0 /tmp/ccPRl2X4.o
 
-.debug_frame    0x0000000000000000      0x32c
- .debug_frame   0x0000000000000000       0xc8 /tmp/ccpenzTZ.o
- .debug_frame   0x00000000000000c8       0x94 /tmp/cc6ye58P.o
- .debug_frame   0x000000000000015c       0x80 /tmp/cccHNqx9.o
- .debug_frame   0x00000000000001dc       0x40 /tmp/ccUON0xq.o
- .debug_frame   0x000000000000021c       0x90 /tmp/ccaaQTTZ.o
- .debug_frame   0x00000000000002ac       0x80 /tmp/cctnv6SK.o
+.debug_loc      0x0000000000000000      0x12d
+ .debug_loc     0x0000000000000000      0x12d /tmp/ccPRl2X4.o

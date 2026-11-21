@@ -79,7 +79,7 @@ static char *cat_dec(char *p, uint32_t v)
 
 static void say(const char *s)
 {
-    uart_write_str(UART0, s);
+    uart_write_str(s);
 }
 
 /* "<bloque>: <nombre>  OK" o "...  FALLA" en una sola transmision.
@@ -107,7 +107,7 @@ static int bloque_init(void)
     int ok;
 
     led_init();
-    uart_init(UART0);
+    uart_init();
     dma_init();
 
     p = cat(m, PROGRAM_NAME);

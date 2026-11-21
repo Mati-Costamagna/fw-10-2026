@@ -2,8 +2,6 @@
 #include "includes.h"
 #include "adc.h"
 
-#define ADC_START_BIT  (1u << 0)   /* REG_ADC_START[0]: arranca con el flanco 0->1 */
-#define ADC_CIRC_BIT   (1u << 1)   /* REG_ADC_START[1]: modo circular (por nivel) */
 #define ADC_ST_HALF    (1u << 0)   /* REG_ADC_STATUS[0]: half_done */
 #define ADC_ST_DONE    (1u << 1)   /* REG_ADC_STATUS[1]: acq_done */
 #define ADC_CLK_DIV_DEFAULT 4u
@@ -32,11 +30,10 @@ int adc_init(uint32_t clk_div)
 
 int adc_start(uint8_t adc_mode)
 {
-    uint32_t start;
-
-    if (adc_mode == ADC_MODE_SINGLE)        start = ADC_START_BIT;
-    else if (adc_mode == ADC_MODE_CIRCULAR) start = ADC_START_BIT | ADC_CIRC_BIT;
-    else return ADC_ERR_PARAM;
+    /* adc_mode se escribe tal cual en START: bit 0 arranca con el flanco 0->1,
+     * bit 1 elige el circular (por nivel) */
+    if (adc_mode != ADC_MODE_SINGLE && adc_mode != ADC_MODE_CIRCULAR)
+        return ADC_ERR_PARAM;
 
     if (ocupado())
         return ADC_ERR_BUSY;
@@ -45,7 +42,7 @@ int adc_start(uint8_t adc_mode)
         REG_ADC_CLK_DIVIDER = ADC_CLK_DIV_DEFAULT;
 
     REG_ADC_START = 0;
-    REG_ADC_START = start;
+    REG_ADC_START = adc_mode;
 
     /* DONE del lote anterior baja recien cuando el ADC pasa a ST_CAPT, dos ciclos despues */
     while (REG_ADC_STATUS & ADC_ST_DONE)
@@ -89,7 +86,7 @@ int adc_read(uint32_t *data, uint32_t size)
     int r;
 
     if (!data || !size)
-        return ADC_ERR_PARAM;
+        return 0;
     if (size > ADC_N_SAMPLES)
         size = ADC_N_SAMPLES;
 

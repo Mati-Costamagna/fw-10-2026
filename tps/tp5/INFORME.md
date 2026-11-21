@@ -101,21 +101,21 @@ Si `idx >= LED_COUNT` (8), `led_on`, `led_off` y `led_toggle` retornan sin tocar
 
 ## Hito 3.a
 
-Driver de UART0 en `fw/drivers/inc/uart.h` y `fw/drivers/src/uart.c`. `uart_id_t` tiene un solo valor, `UART0`.
+Driver de UART0 en `fw/drivers/inc/uart.h` y `fw/drivers/src/uart.c`. Las funciones no reciben un identificador de UART: la interfaz requerida de la consigna es `uart_write_byte(char c)` y `uart_write_str(const char *s)`, y `test_drivers.c` las llama asi. La primera version tenia un `uart_id_t` con un solo valor, `UART0`, como primer parametro; lo saque cuando la catedra actualizo la consigna. `uart_init` y las funciones de recepcion son extras que no pide la consigna.
 
 | Funcion | Que hace |
 |---|---|
-| `uart_init(uart)` | Baja START, espera que termine la transmision en curso y descarta lo recibido |
-| `uart_write_byte(uart, c)` | Manda un byte y espera que termine |
-| `uart_write_str(uart, s)` | Manda `s` hasta el `'\0'`, en bloques de 256 si es mas largo |
-| `uart_rx_available(uart)` | 1 si llego al menos un byte desde el ultimo flush |
-| `uart_rx_count(uart)` | Cantidad de bytes recibidos |
-| `uart_read(uart, buf, max)` | Copia hasta `max` bytes recibidos en `buf` y devuelve cuantos copio |
-| `uart_rx_flush(uart)` | Descarta lo recibido |
+| `uart_init()` | Baja START, espera que termine la transmision en curso y descarta lo recibido |
+| `uart_write_byte(c)` | Manda un byte y espera que termine (bloqueante) |
+| `uart_write_str(s)` | Manda `s` hasta el `'\0'`, en bloques de 256 si es mas largo, y espera que termine (bloqueante) |
+| `uart_rx_available()` | 1 si llego al menos un byte desde el ultimo flush |
+| `uart_rx_count()` | Cantidad de bytes recibidos |
+| `uart_read(buf, max)` | Copia hasta `max` bytes recibidos en `buf` y devuelve cuantos copio |
+| `uart_rx_flush()` | Descarta lo recibido |
 
 ### Validacion
 
-`test_new_uart.c` escribia los registros de UART0 directamente, asi que lo reescribi para que use el driver. Hace lo mismo que antes (manda `hello Luigi!`, le pide al testbench que mande `HOLA!` con `REG_AUX_0 = 0x5ED5ED` y hace el eco) y agrega chequeos de bytes sueltos, uart invalido, un string de 300 caracteres, `uart_read` con `max` y flush.
+`test_new_uart.c` escribia los registros de UART0 directamente, asi que lo reescribi para que use el driver. Hace lo mismo que antes (manda `hello Luigi!`, le pide al testbench que mande `HOLA!` con `REG_AUX_0 = 0x5ED5ED` y hace el eco) y agrega chequeos de bytes sueltos, un string de 300 caracteres, `uart_read` con `max` y flush.
 
 ```bash
 make -C fw TARGET=test_new_uart
@@ -138,8 +138,6 @@ UART: rx = HOLA!
 UART:   OK
 UART: read con max = 2
 UART:   OK
-UART: uart invalido
-UART:   OK
 UART: flush
 UART:   OK
 UART: -- test UART PASS --
@@ -149,7 +147,6 @@ RESULT: PASS
 
 - `hello Luigi!` y `HOLA!` son las mismas lineas que da el test original.
 - Cada `uart_write_byte` es una transmision aparte (lineas `O` y `K`).
-- Lo que se manda con un `uart_id_t` invalido no aparece.
 - El string de 300 caracteres sale en dos transmisiones: 256 y 44.
 - Fuera de `uart.c`, `REG_UART0_*` solo aparece en `config.h` (las definiciones), en `print.c` (ver arriba) y en los tests `test_drivers.c` y `test_dma.c`, que leen los registros para verificar. `test_new_uart.c` solo usa la constante `REG_ARRAY_UART0_BUFF_IN_SIZE`.
 
@@ -172,6 +169,8 @@ Driver de UART1 (serie 8N1, FIFOs RX y TX de 16 bytes) en `fw/drivers/src/uart1.
 ### Errores encontrados
 
 **No existe `make test_uart_serial`:** la consigna lo nombra, pero el Makefile de la raiz solo tiene `fw`, `sim` y `wave`. El host de UART1 del testbench solo actua si el simulador recibe `+UART1_SCRIPT=<archivo>`, y `make sim` corre `./obj_dir/Vtestbench` sin argumentos. Sin patron, `test_uart_serial.c` se queda esperando comandos en su `for (;;)` y la simulacion no termina. Sin agregar reglas al Makefile, compilo el FW con `make -C fw`, compilo el simulador con el mismo comando de Verilator que usa `make sim` y lo corro pasandole el patron. Como no paso `+NOWAVE`, se genera `wave.vcd` y despues se puede usar `make wave`. Con `+VERBOSE`, el host imprime cada byte que manda.
+
+Despues la catedra actualizo el `Makefile` de la raiz y ahora `make test_uart_serial` existe: compila, simula con el patron y termina con `[ OK ] PASS`.
 
 ### Validacion
 
@@ -307,10 +306,10 @@ Driver de ADC en `fw/drivers/inc/adc.h` y `fw/drivers/src/adc.c`. Sume `drivers/
 | Funcion | Que hace |
 |---|---|
 | `adc_init(clk_div)` | Rechaza `clk_div = 0`, baja `START` y escribe `CLK_DIVIDER`. Devuelve `ADC_OK` (0), `ADC_ERR_PARAM` (-1) o `ADC_ERR_BUSY` (-2) si hay una captura en curso |
-| `adc_start(adc_mode)` | `ADC_MODE_SINGLE` (1) o `ADC_MODE_CIRCULAR` (2). Escribe `START = 0` y despues `1` (unica) o `3` (circular), y espera que baje el `DONE` de la captura anterior. Si `CLK_DIVIDER` esta en 0 pone 4 |
+| `adc_start(adc_mode)` | `ADC_MODE_SINGLE` (1) o `ADC_MODE_CIRCULAR` (3): `adc_mode` es el valor que se escribe en `START` (bit 0 inicio, bit 1 circular). Escribe `START = 0` y despues `adc_mode`, y espera que baje el `DONE` de la captura anterior. Si `CLK_DIVIDER` esta en 0 pone 4 |
 | `adc_half_done()` | Espera que esten escritas las muestras 0..127 del lote. Devuelve 1, o 0 si no hay captura |
 | `adc_done()` | Espera el fin del lote (`DONE`). Devuelve 1, o 0 si no hay captura |
-| `adc_read(data, size)` | Hace una captura unica, espera `DONE` y copia `min(size, 256)` muestras. Devuelve cuantas copio, `ADC_ERR_PARAM` o `ADC_ERR_BUSY` |
+| `adc_read(data, size)` | Hace una captura unica, espera `DONE` y copia `min(size, 256)` muestras. Devuelve cuantas copio (0 si `data` es nulo o `size` es 0) o `ADC_ERR_BUSY` |
 
 - El driver no tiene forma de parar el modo circular. Despues de `adc_start(ADC_MODE_CIRCULAR)`, `adc_init`, `adc_start` y `adc_read` devuelven `ADC_ERR_BUSY` hasta un reset, y como `adc_read` es la unica funcion que lee el buffer, las muestras del circular no se pueden leer.
 - Las muestras son de 32 bits (`DATA_WIDTH = NB_MEM_DATA`, `top.v:281`), asi que `adc_read` recibe `uint32_t *`. El ejemplo de la consigna usa `uint16_t samples[256]`, que no coincide con el prototipo y truncaria los codigos.
@@ -355,19 +354,19 @@ RESULT: PASS
 
 ## Hito 6
 
-App de demo en `fw/app/main.c` (el `TARGET` por defecto). Usa los cuatro drivers solo por su API publica y no escribe ningun registro. Sume un modulo chico, `fw_status.h` / `fw_status.c`, para los registros que lee el testbench (`REG_FW_STATUS` y `REG_FW_REPORT`), y lo agregue a `fw/sources.mk`.
+App de demo en `fw/app/demo_tp5.c`. Estaba en `fw/app/main.c`, pero el TP6 usa ese archivo para el procesador de comandos, asi que al traer los cambios de la catedra la movi, como pide `tps/tp6.md`. Usa los cuatro drivers solo por su API publica y no escribe ningun registro. Sume un modulo chico, `fw_status.h` / `fw_status.c`, para los registros que lee el testbench (`REG_FW_STATUS` y `REG_FW_REPORT`), y lo agregue a `fw/sources.mk`.
 
 | Bloque | Que hace | LED |
 |---|---|---|
-| init | `led_init`, `uart_init(UART0)`, `dma_init`, banner por UART0, chequea que los LEDs arranquen apagados y `adc_init(4)` | bit 0 |
+| init | `led_init`, `uart_init()`, `dma_init`, banner por UART0, chequea que los LEDs arranquen apagados y `adc_init(4)` | bit 0 |
 | DMA | Copia 64 palabras a un destino con 4 palabras de guarda a cada lado, chequea `dma_is_done`, el destino y las guardas, y que un solape y un `dst` desalineado se rechacen sin tocar memoria | bit 1 |
 | ADC | `adc_start(ADC_MODE_SINGLE)`, `adc_half_done` (prende el bit 2), `adc_done`; despues `adc_read` de 256 muestras, chequea que la senal varie y que `min < max` | bits 2 y 3 |
 | envio | Copia las muestras con `dma_copy` a un buffer de envio, chequea que coincidan y las manda por UART0 despues de `-- ADC data read --` | bit 4 |
 
 - Cada chequeo manda una linea `<bloque>: <chequeo>  OK` o `FALLA` por UART0. Si alguno falla se prende el bit 7 y la demo sigue con los demas bloques.
 - Al final escribe en `REG_FW_REPORT` un bit por bloque que fallo (bit 0 init, 1 DMA, 2 ADC, 3 envio) y deja `REG_FW_STATUS` en `0xFF` o `0xBAD` con `fw_status_end()`.
-- Los mensajes salen con `uart_write_str(UART0, ...)`, no con `print_str`, porque `print.c` escribe los registros de UART0 directamente.
-- El divisor del ADC se cambia al compilar: `make -C fw EXTRA_CFLAGS=-DDEMO_ADC_CLK_DIV=16`.
+- Los mensajes salen con `uart_write_str(...)`, no con `print_str`, porque `print.c` escribe los registros de UART0 directamente.
+- El divisor del ADC se cambia al compilar: `make -C fw TARGET=demo_tp5 EXTRA_CFLAGS=-DDEMO_ADC_CLK_DIV=16`.
 
 ### Errores encontrados
 
@@ -376,7 +375,7 @@ App de demo en `fw/app/main.c` (el `TARGET` por defecto). Usa los cuatro drivers
 ### Validacion
 
 ```bash
-make -C fw
+make -C fw TARGET=demo_tp5
 make sim
 ```
 
@@ -406,13 +405,13 @@ LED: 0b00001111
 UART: DMA: muestras al buffer de envio  OK
 UART: DMA: buffer de envio igual a las muestras  OK
 UART: -- ADC data read --
-UART: 3205607557
-UART: 3061837714
+UART: 378960861
+UART: 475748585
 ...                          (256 muestras)
 LED: 0b00011111
 UART: -- demo PASS --
 ending simulation, u_top.u_register_file.REGISTER_FW_STATUS = 000000ff
-total clocks:              5133250
+total clocks:              5073936
 RESULT: PASS
 ```
 
@@ -424,7 +423,7 @@ RESULT: PASS
 Camino de falla, con un `adc_init` que tiene que fallar:
 
 ```bash
-make -C fw EXTRA_CFLAGS=-DDEMO_ADC_CLK_DIV=0
+make -C fw TARGET=demo_tp5 EXTRA_CFLAGS=-DDEMO_ADC_CLK_DIV=0
 make sim
 ```
 
@@ -444,5 +443,5 @@ RESULT: FAIL
 
 Encapsulamiento:
 
-- `main.c` no incluye `includes.h` ni `config.h`, solo `led.h`, `uart.h`, `dma.h`, `adc.h` y `fw_status.h`. Ninguno de esos headers trae `config.h`, asi que un `REG_*` en `main.c` no compila.
+- `demo_tp5.c` no incluye `includes.h` ni `config.h`, solo `led.h`, `uart.h`, `dma.h`, `adc.h` y `fw_status.h`. Ninguno de esos headers trae `config.h`, asi que un `REG_*` en `demo_tp5.c` no compila.
 - `test_led`, `test_new_uart`, `test_dma_driver`, `test_adc`, `test_dma` y `test_uart_serial` siguen compilando con `fw_status.c` en `sources.mk`.

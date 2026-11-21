@@ -3,22 +3,22 @@
 
 #include <stdint.h>
 
-typedef enum {
-    UART0 = 0,
-} uart_id_t;
+/* Driver de UART0. Interfaz requerida por tps/tp5/tp5.md (3.a): uart_write_byte y
+ * uart_write_str, las dos bloqueantes (al volver, la transmision termino).
+ * El resto (init y RX) es extra. */
 
-void uart_init(uart_id_t uart);
+void uart_init(void);
 
-void uart_write_byte(uart_id_t uart, char c);
+void uart_write_byte(char c);
 
-void uart_write_str(uart_id_t uart, const char *s);
+void uart_write_str(const char *s);
 
-uint8_t uart_rx_available(uart_id_t uart);
+uint8_t uart_rx_available(void);
 
-uint32_t uart_rx_count(uart_id_t uart);
+uint32_t uart_rx_count(void);
 
-uint32_t uart_read(uart_id_t uart, char *buf, uint32_t max);
+uint32_t uart_read(char *buf, uint32_t max);
 
-void uart_rx_flush(uart_id_t uart);
+void uart_rx_flush(void);
 
 #endif
